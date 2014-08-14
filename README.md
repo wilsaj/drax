@@ -32,7 +32,7 @@ Any changes to server code the will automatically restart the app.
 `npm run debug` similar to `npm run start`, but runs the app in debug mode. This
 is intended to be used with
 [node-inspector](https://github.com/node-inspector/node-inspector) also running
-so app can be inspected via breakpoints and *debugger* statements.
+so app can be inspected via breakpoints and **debugger** statements.
 
 `npm run production-dist` will make a distribution suitable for deploying to
 production environments. A self-contained build of the appplication will be
