@@ -3,10 +3,10 @@
   "version": "0.0.1",
   "description": "Drax the Deployer wants to savagely dispatch your static web content.",
   "scripts": {
-    "dist": "gulp",
-    "prod-dist": "gulp clean && gulp dist --type production",
-    "debug": "nodemon --debug-brk --cwd ./.dist --watch server --watch config server/index.js",
+    "debug": "nodemon --debug --cwd ./.dist --watch server --watch config server/index.js",
+    "production-dist": "gulp clean && gulp fresh-dist --type production",
     "start": "nodemon --cwd ./.dist --watch server --watch config server/index.js",
+    "test": "gulp test",
     "watch": "gulp dev"
   },
   "author": "Andy Wilson",
@@ -21,9 +21,13 @@
   "license": "BSD",
   "devDependencies": {
     "gulp": "^3.8.7",
+    "gulp-mocha": "^0.5.2",
     "gulp-rimraf": "^0.1.0",
     "gulp-ruby-sass": "^0.7.1",
-    "nodemon": "^1.2.1"
+    "nodemon": "^1.2.1",
+    "run-sequence": "^0.3.6",
+    "should": "^4.0.4",
+    "supertest": "^0.13.0"
   },
   "dependencies": {
     "express": "^4.8.3",
