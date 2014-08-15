@@ -20,6 +20,5 @@ module.exports = function (options) {
     file: path.join(__dirname, 'defaults.json')
   });
 
-
   return nconf;
 };
