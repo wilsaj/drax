@@ -2,15 +2,15 @@
 var express = require('express');
 
 var Config = require('./config');
+var Routes = require('./routes');
 
 var Server = function (options) {
   var app = express();
   var config = Config(options);
 
-
-  app.get('/', function(req, res){
-    res.send('hi');
-  });
+  // set up routes, mapping the .dist/client dir to be served as static content
+  var staticDir = __dirname + '/client';
+  app.use('/', Routes(staticDir));
 
   return {
     app: app,
