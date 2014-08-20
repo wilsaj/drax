@@ -35,7 +35,6 @@
     "body-parser": "^1.6.5",
     "express": "^4.8.3",
     "nconf": "^0.6.9",
-    "nodegit": "^0.1.4",
     "underscore.string": "^2.3.3"
   }
 }
