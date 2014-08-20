@@ -4,6 +4,7 @@
   "description": "Drax the Deployer wants to savagely dispatch your static web content.",
   "scripts": {
     "debug": "nodemon --debug --cwd ./.dist --watch server --watch config server/index.js",
+    "debug-brk": "nodemon --debug-brk --cwd ./.dist --watch server --watch config server/index.js",
     "production-dist": "gulp clean && gulp fresh-dist --type production",
     "start": "nodemon --cwd ./.dist --watch server --watch config server/index.js",
     "test": "gulp test",
