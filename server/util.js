@@ -35,6 +35,14 @@ var util = {
         console.log("git branches error: " + error.message);
       });
   },
+  build: function build(branch, repoPath) {
+    var remoteBranch = 'origin/' + branch;
+    var buildOut = 'origin/' + branch;
+    return git('checkout ' + remoteBranch, repoPath)
+      .then(function() {
+        return execAsync('npm install && gulp dist', {cwd: repoPath});
+      });
+  },
   clone: function clone(url, repoPath) {
     return git('clone ' + url + ' ' + repoPath);
   }

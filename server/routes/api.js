@@ -17,6 +17,17 @@ var router = function (config) {
   // parse application/json and application/x-www-form-urlencoded
   router.use(bodyParser());
 
+  router.route('/build/:branch')
+    .get(function(req, res) {
+      var branch = req.params.branch;
+      util.build(branch, repoPath)
+        .then(function(branches) {
+          res.send('built');
+        })
+        .catch(function(error) {
+          res.send(500, error.message);
+        });
+      });
   router.route('/branches')
     .get(function(req, res) {
       util.branches(repoPath)
