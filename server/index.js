@@ -10,7 +10,7 @@ var Server = function (options) {
 
   // set up routes, mapping the .dist/client dir to be served as static content
   var staticDir = __dirname + '/client';
-  app.use('/', Routes(staticDir));
+  app.use('/', Routes(staticDir, config));
 
   return {
     app: app,

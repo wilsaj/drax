@@ -1,4 +1,5 @@
 {
   "debug": false,
-  "port": 6515
+  "port": 6515,
+  "repoPath": "/path/to/repo"
 }
