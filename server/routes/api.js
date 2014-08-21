@@ -28,6 +28,7 @@ var router = function (config) {
           res.send(500, error.message);
         });
       });
+
   router.route('/branches')
     .get(function(req, res) {
       util.branches(repoPath)
@@ -48,6 +49,20 @@ var router = function (config) {
           res.send(403, error.message);
         });
       });
+
+  router.route('/commits')
+    .get(function(req, res) {
+      util.commits(repoPath)
+        .then(function(commits) {
+          res.send(JSON.stringify({
+            'commits': commits
+          }));
+        })
+        .catch(function(error) {
+          res.send(403, error.message);
+        });
+      });
+
   return router;
 };
 

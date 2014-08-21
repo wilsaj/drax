@@ -45,6 +45,41 @@ var util = {
   },
   clone: function clone(url, repoPath) {
     return git('clone ' + url + ' ' + repoPath);
+  },
+  commits: function commits(repoPath) {
+    // separator that won't naturally occur in any part of commit log
+    var sep = '::-SEP-::';
+
+    // list of attributes to pull out of commit long, in format:
+    //   [formatStringPlaceholder, name]
+    // for possible placeholders see format:<string> section of git log --help
+    var attrs = [
+      ['%H', 'hash'],
+      ['%d', 'branches'],
+      ['%aN', 'authorName'],
+      ['%ae', 'authorEmail'],
+      ['%s', 'subject'],
+      ['%b', 'body']
+    ];
+    var formatStr = attrs.map(function(attr) {return attr[0];}).join(sep);
+
+    return git('log --all --format=format:' + formatStr, repoPath)
+      .then(function(output) {
+        var commits = output.split('\n').map(function (line) {
+          var commit = {};
+
+          line.split(sep).forEach(function (value, i) {
+            var key = attrs[i][1];
+            commit[key] = value;
+          });
+
+          commit.branches = _s.trim(commit.branches, ' ()').split(', ');
+
+          return commit;
+        });
+
+        return commits;
+      });
   }
 };
 
