@@ -33,9 +33,9 @@ var router = function (config) {
     .get(function(req, res) {
       util.branches(repoPath)
         .then(function(branches) {
-          res.send(JSON.stringify({
+          res.json({
             'branches': branches
-          }));
+          });
         });
       });
 
@@ -54,9 +54,9 @@ var router = function (config) {
     .get(function(req, res) {
       util.commits(repoPath)
         .then(function(commits) {
-          res.send(JSON.stringify({
+          res.json({
             'commits': commits
-          }));
+          });
         })
         .catch(function(error) {
           res.send(403, error.message);
