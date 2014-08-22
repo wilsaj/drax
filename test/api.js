@@ -66,6 +66,12 @@ describe('/api/v1/', function () {
     });
   });
 
+  after(function (done) {
+    execSeries([
+      'rm -rf ' + repoPath
+    ], {}, done);
+  });
+
   describe('/commits', function() {
     it('GET should return an object containing all commits"', function (done) {
       request(app)
