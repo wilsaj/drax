@@ -19,18 +19,16 @@ var app = require('../.dist/server')(conf).app;
 var apiPre = '/api/v1/';
 
 
-function execSeries(array, callback) {
-  return async.series(array.map(function(execArgs) {
-    if (typeof execArgs === 'string') {
-      return function(callback) {
-        exec(execArgs, callback);
-      };
-    } 
-    else {
-      return function(callback) {
-        exec(execArgs[0], execArgs[1], callback);
-      };
-    }
+
+// helper function for running exec commands in series
+//   commands - strings of shell commands
+//   options  - options that will be passed to child_process.exec
+//   callback - will be called once all of the commands have run
+function execSeries(commands, options, callback) {
+  return async.series(commands.map(function(command) {
+    return function(callback) {
+      exec(command, options, callback);
+    };
   }), callback);
 }
 
@@ -39,15 +37,18 @@ describe('/api/v1/', function () {
   before(function (done) {
     execSeries([
       'rm -rf ' + repoPath,
-      'mkdir -p ' + repoPath,
-      ['git init', {cwd: repoPath}],
-      ['echo "hi" > hi.txt', {cwd: repoPath}],
-      ['git add .', {cwd: repoPath}],
-      ['git commit -m "initial commit"', {cwd: repoPath}],
-      ['echo "hello" > hi.txt', {cwd: repoPath}],
-      ['git add .', {cwd: repoPath}],
-      ['git commit -m "changed"', {cwd: repoPath}]
-    ], done);
+      'mkdir -p ' + repoPath
+    ], {}, function () {
+      execSeries([
+        'git init',
+        'echo "hi" > hi.txt',
+        'git add .',
+        'git commit -m "initial commit"',
+        'echo "hello" > hi.txt',
+        'git add .',
+        'git commit -m "changed"'
+        ], {cwd: repoPath}, done);
+    });
   });
 
 
