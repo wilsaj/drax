@@ -3,6 +3,7 @@
 var bodyParser = require('body-parser');
 var express = require('express');
 var util = require('../util');
+var _s  = require('underscore.string');
 
 
 
@@ -17,17 +18,24 @@ var router = function (config) {
   // parse application/json and application/x-www-form-urlencoded
   router.use(bodyParser());
 
-  router.route('/build/:branch')
-    .get(function(req, res) {
-      var branch = req.params.branch;
-      util.build(branch, repoPath)
-        .then(function(branches) {
-          res.send('built');
-        })
-        .catch(function(error) {
-          res.send(500, error.message);
+  router.route(/^\/build\/(.*)/)
+      .get(function(req, res) {
+        var name = req.params[0];
+        var commit = util.hashFor(name, repoPath)
+          .then(function (commit) {
+            util.build(commit, repoPath)
+              .then(function(commits) {
+                res.send('built');
+              })
+              .catch(function(error) {
+                console.log(error.message);
+                res.send(500, error.message);
+              });
+          })
+          .catch(function(error) {
+            res.send(500, error.message);
+          });
         });
-      });
 
   router.route('/branches')
     .get(function(req, res) {

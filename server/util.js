@@ -35,12 +35,13 @@ var util = {
         console.log("git branches error: " + error.message);
       });
   },
-  build: function build(branch, repoPath) {
-    var remoteBranch = 'origin/' + branch;
-    var buildOut = 'origin/' + branch;
-    return git('checkout ' + remoteBranch, repoPath)
+  build: function build(commit, repoPath) {
+    var distPath = repoPath + '/.dist';
+    var outPath = '/tmp/' + commit + '/';
+
+    return git('checkout ' + commit, repoPath)
       .then(function() {
-        return execAsync('npm install && gulp dist', {cwd: repoPath});
+        return execAsync('npm install && gulp dist && rm -rf ' + outPath + ' && mv ' + distPath + ' ' + outPath, {cwd: repoPath});
       });
   },
   clone: function clone(url, repoPath) {
@@ -79,6 +80,20 @@ var util = {
         });
 
         return commits;
+      });
+  },
+  hashFor: function hashFor(name, repoPath) {
+    return execAsync('git log --format=format:%H -1 ' + name, {cwd: repoPath})
+      .then(function (output) {
+        return output[0];
+      })
+      .catch(function(error) {
+        if (_s.include(error.message, 'unknown revision or path not in the working tree')) {
+          throw "No commit or branch found for: " + name;
+        }
+        else {
+          throw error.message;
+        }
       });
   }
 };
