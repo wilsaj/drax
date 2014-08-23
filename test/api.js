@@ -47,7 +47,7 @@ describe('/api/v1/', function () {
         'git commit -m "initial commit"',
         'echo "hello" > hi.txt',
         'git add .',
-        'git commit -m "changed"',
+        'git commit -m "changed" -m "I mean seriously." -m "we totally changed this"',
         'git checkout -b some-branch',
         'echo "more things" >> hi.txt',
         'git add .',

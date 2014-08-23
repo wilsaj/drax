@@ -49,7 +49,8 @@ var util = {
   },
   commits: function commits(repoPath) {
     // separator that won't naturally occur in any part of commit log
-    var sep = '::-SEP-::';
+    var propertySep = '::-PROPERTYSEP-::';
+    var commitSep = '::-COMMITSEP-::';
 
     // list of attributes to pull out of commit long, in format:
     //   [formatStringPlaceholder, name]
@@ -62,14 +63,15 @@ var util = {
       ['%s', 'subject'],
       ['%b', 'body']
     ];
-    var formatStr = attrs.map(function(attr) {return attr[0];}).join(sep);
+    var formatStr = attrs.map(function(attr) {return attr[0];}).join(propertySep) + commitSep;
 
     return git('log --all --format=format:' + formatStr, repoPath)
       .then(function(output) {
-        var commits = output.split('\n').map(function (line) {
+        var commitStrs = output.split(commitSep).slice(0, -1);
+        var commits = commitStrs.map(function (commitStr) {
           var commit = {};
 
-          line.split(sep).forEach(function (value, i) {
+          commitStr.split(propertySep).forEach(function (value, i) {
             var key = attrs[i][1];
             commit[key] = value;
           });
