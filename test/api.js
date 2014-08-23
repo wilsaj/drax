@@ -81,6 +81,21 @@ describe('/api/v1/', function () {
           var commits = JSON.parse(res.text).commits;
           assert.equal(commits.length,  5);
 
+          var properties = [
+            'hash',
+            'branches',
+            'authorName',
+            'authorEmail',
+            'subject',
+            'body'
+          ];
+
+          commits.forEach(function (commit) {
+            properties.forEach(function (prop) {
+              assert(commit.hasOwnProperty(prop));
+            });
+          });
+
           if (err) {return done(err);}
           done();
         });
