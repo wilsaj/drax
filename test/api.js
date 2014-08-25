@@ -1,6 +1,7 @@
 'use strict';
 
 var exec = require('child_process').exec;
+var fs = require('fs');
 var path = require('path');
 
 var assert = require('assert');
@@ -9,9 +10,12 @@ var request = require('supertest');
 var should = require('should');
 
 var repoPath = path.join(__dirname, '.test-repo');
+var outDir = path.join(__dirname, '.test-out');
 
 var conf = {
   'repoPath': repoPath,
+  'outDir': outDir,
+  'buildCommand': 'mkdir -p .dist && cp ./* .dist',
   'NODE_ENV': 'test'
 };
 
@@ -68,12 +72,13 @@ describe('/api/v1/', function () {
 
   after(function (done) {
     execSeries([
-      'rm -rf ' + repoPath
+      'rm -rf ' + repoPath,
+      'rm -rf ' + outDir
     ], {}, done);
   });
 
   describe('/commits', function() {
-    it('GET should return an object containing all commits"', function (done) {
+    it('GET should return an object containing all commits', function (done) {
       request(app)
         .get(apiPre + '/commits')
         .expect(200)
@@ -89,7 +94,7 @@ describe('/api/v1/', function () {
               subject: 'different things',
               body: ''
             }, {
-              branches: [ 'some-branch' ],
+              branches: ['some-branch'],
               authorName: 'Testing Testerson',
               authorEmail: 'testdude81@aol.com',
               subject: 'some-branch commit pt. 2',
@@ -128,6 +133,78 @@ describe('/api/v1/', function () {
           if (err) {return done(err);}
           done();
         });
+    });
+  });
+
+  describe('/build', function() {
+    it('building should work for branch names', function (done) {
+      var buildName = 'master';
+
+      exec('git log -1 --format=format:%H ' + buildName, {cwd: repoPath}, function (err, stdout, stderr) {
+        var commit = stdout;
+
+        request(app)
+          .get(apiPre + '/build/' + buildName)
+          .expect(200)
+          .end(function(err, res){
+            assert.equal(res.text, 'built');
+
+            var testPath = path.join(outDir, commit, 'hi.txt');
+
+            fs.readFile(testPath, function(err, data) {
+              assert.equal(data.toString(), 'hello\n');
+            });
+
+            if (err) {return done(err);}
+            done();
+          });
+      });
+    });
+
+    it('building should work for full commit hashes', function (done) {
+      exec('git log -1 --all --skip 4 --topo-order --format=format:%H', {cwd: repoPath}, function (err, stdout, stderr) {
+        var commit = stdout;
+
+        request(app)
+          .get(apiPre + '/build/' + commit)
+          .expect(200)
+          .end(function(err, res){
+            assert.equal(res.text, 'built');
+
+            var testPath = path.join(outDir, commit, 'hi.txt');
+
+            fs.readFile(testPath, function(err, data) {
+              assert.equal(data.toString(), 'hi\n');
+            });
+
+            if (err) {return done(err);}
+            done();
+          });
+      });
+    });
+
+
+    it('building should work for partial commit hashes', function (done) {
+      exec('git log -1 --format=format:%H another-branch', {cwd: repoPath}, function (err, stdout, stderr) {
+        var commit = stdout;
+        var partialCommit = commit.substr(0, 10);
+
+        request(app)
+          .get(apiPre + '/build/' + partialCommit)
+          .expect(200)
+          .end(function(err, res){
+            assert.equal(res.text, 'built');
+
+            var testPath = path.join(outDir, commit, 'hi.txt');
+
+            fs.readFile(testPath, function(err, data) {
+              assert.equal(data.toString(), 'hello\nexciting and different things\n');
+            });
+
+            if (err) {return done(err);}
+            done();
+          });
+      });
     });
   });
 });
