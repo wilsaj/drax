@@ -24,7 +24,8 @@ var paths = {
   client: dirs.client + '/**/*',
   server: dirs.server + '/**/*',
   scss: dirs.scss + '/**/*.scss',
-  templates: dirs.templates + '/**/*'
+  templates: dirs.templates + '/**/*',
+  tmpUseref: dirs.tmpUseref + '/*'
 };
 
 gulp.task('default', ['dist']);
@@ -32,7 +33,7 @@ gulp.task('default', ['dist']);
 gulp.task('dev', ['dist', 'watch']);
 
 gulp.task('watch', function () {
-  gulp.watch(paths.client, ['dist-client']);
+  gulp.watch([paths.client, paths.templates], ['dist-client']);
   gulp.watch(paths.server, ['dist-server']);
 
   console.log('Watches are active for continuously disting dev files.');
@@ -59,12 +60,12 @@ gulp.task('dist-scss', function () {
     .pipe(gulp.dest(dirs.dist + '/' + dirs.client + '/css'));
 });
 
-gulp.task('dist-useref', ['dist-useref-templates']);
+gulp.task('dist-useref', ['dist-useref-assets', 'dist-useref-templates']);
 
 gulp.task('dist-useref-tmp', function() {
   var assets = useref.assets({
-        searchPath: dirs.client
-      });
+    searchPath: dirs.client
+  });
 
   return gulp.src(paths.templates)
       .pipe(assets)
@@ -73,6 +74,10 @@ gulp.task('dist-useref-tmp', function() {
       .pipe(gulp.dest(dirs.tmpUseref));
 });
 
+gulp.task('dist-useref-assets', ['dist-useref-tmp'], function() {
+  return gulp.src([dirs.tmpUseref + '/**/*', '!' + dirs.tmpUseref + '/*'])
+      .pipe(gulp.dest(dirs.dist + '/' + dirs.client));
+});
 
 gulp.task('dist-useref-templates', ['dist-useref-tmp'], function() {
   return gulp.src(dirs.tmpUseref + '/*')
@@ -80,9 +85,10 @@ gulp.task('dist-useref-templates', ['dist-useref-tmp'], function() {
 });
 
 gulp.task('dist-server', function () {
-  return gulp.src(paths.server)
+  return gulp.src([paths.server, '!' + paths.templates])
     .pipe(gulp.dest(dirs.dist + '/' + dirs.server));
 });
+
 
 gulp.task('clean', ['clean-dist', 'clean-sass-cache']);
 
