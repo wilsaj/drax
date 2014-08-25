@@ -1,5 +1,4 @@
 'use strict';
-var consolidate = require('consolidate');
 var express = require('express');
 
 var Config = require('./config');
@@ -12,7 +11,6 @@ var Server = function (options) {
   // set up routes, mapping the .dist/client dir to be served as static content
   var staticDir = './client';
   app.use('/', Routes(staticDir, config));
-  app.engine('html', consolidate.swig);
   app.set('views', './server/views');
 
   return {

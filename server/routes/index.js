@@ -10,7 +10,7 @@ module.exports = function (staticDir, config) {
   router.use('/api/v1/', API(config));
 
   router.get('/', function(req, res) {
-    return res.render('index.html');
+    return res.sendfile('server/views/index.html');
   });
 
   return router;
