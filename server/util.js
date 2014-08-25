@@ -77,7 +77,11 @@ var util = {
             commit[key] = value;
           });
 
-          commit.branches = _s.trim(commit.branches, ' ()').split(', ');
+          commit.branches = _s.trim(commit.branches, ' ()')
+            .split(', ')
+            .filter(function (branch) {
+              return branch.length > 0;
+            });
 
           return commit;
         });

@@ -95,7 +95,7 @@ describe('/api/v1/', function () {
               subject: 'some-branch commit pt. 2',
               body: ''
             }, {
-              branches: [ '' ],
+              branches: [],
               authorName: 'Testerina Testski',
               authorEmail: 'testpower3726@aol.com',
               subject: 'some-branch commit',
@@ -107,7 +107,7 @@ describe('/api/v1/', function () {
               subject: 'changed',
               body: 'I mean seriously.\n\nwe totally changed this\n'
             }, {
-              branches: [ '' ],
+              branches: [],
               authorName: 'Testing Testerson',
               authorEmail: 'testdude81@aol.com',
               subject: 'initial commit',
