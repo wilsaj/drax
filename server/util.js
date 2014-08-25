@@ -37,12 +37,16 @@ var util = {
       });
   },
   build: function build(commit, repoPath, buildCommand, distDir, outDir) {
-    var distPath = path.join(repoPath, distDir);
     var outPath = path.join(outDir, commit);
+    var buildPath = outPath + '-build';
+    var distPath = path.join(buildPath, distDir);
 
-    return git('checkout ' + commit, repoPath)
+    return git('clone ' + repoPath + ' ' + buildPath, repoPath)
+      .then(function () {
+        return git('checkout ' + commit, buildPath);
+      })
       .then(function() {
-        return execAsync('mkdir -p ' + outDir + ' && ' + buildCommand + ' && rm -rf ' + outPath + ' && mv ' + distPath + ' ' + outPath, {cwd: repoPath});
+        return execAsync('mkdir -p ' + outDir + ' && ' + buildCommand + ' && rm -rf ' + outPath + ' && mv ' + distPath + ' ' + outPath + ' && rm -rf ' + buildPath, {cwd: buildPath});
       });
   },
   clone: function clone(url, repoPath) {
