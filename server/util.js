@@ -65,7 +65,7 @@ var util = {
     ];
     var formatStr = attrs.map(function(attr) {return attr[0];}).join(propertySep) + commitSep;
 
-    return git('log --all --format=format:' + formatStr, repoPath)
+    return git('log --all --topo-order --format=format:' + formatStr, repoPath)
       .then(function(output) {
         var commitStrs = output.split(commitSep + '\n');
         var commits = commitStrs.map(function (commitStr) {
