@@ -13,6 +13,13 @@
 
   </head>
   <body ng-controller="draxCtrl">
+    <div class="container">
+      <div ng-repeat="commit in commits">
+        <h3>commit</h3>
+        <p>{{ commit.hash }}</p>
+        <p>{{ commit.subject }}</p>
+      </div>
+    </div>
 
     <!-- build:js scripts/vendor.js -->
       <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
@@ -20,6 +27,8 @@
     <!-- endbuild -->
 
     <!-- build:js scripts/app.js -->
+      <script type="text/javascript" src="scripts/services/DataService.js"></script>
+      <script type="text/javascript" src="scripts/controllers/draxCtrl.js"></script>
       <script type="text/javascript" src="scripts/app.js"></script>
     <!-- endbuild -->
   </body>
