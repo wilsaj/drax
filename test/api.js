@@ -44,7 +44,7 @@ describe('/api/v1/', function () {
         'git init',
         'echo "hi" > hi.txt',
         'git add .',
-        'git commit -m "initial commit" --author="Testing Testerson <testdude81@aol.com>"',
+        'git commit -m "initial commit" -m "starting off" --author="Testing Testerson <testdude81@aol.com>"',
         'echo "hello" > hi.txt',
         'git add .',
         'git commit -m "changed" -m "I mean seriously." -m "we totally changed this" --author="Testerina Testski <testpower3726@aol.com>"',
@@ -111,7 +111,7 @@ describe('/api/v1/', function () {
               authorName: 'Testing Testerson',
               authorEmail: 'testdude81@aol.com',
               subject: 'initial commit',
-              body: ''
+              body: 'starting off\n'
             }
           ];
 

@@ -67,6 +67,7 @@ var util = {
 
     return git('log --all --topo-order --format=format:' + formatStr, repoPath)
       .then(function(output) {
+        output = output.slice(0, -1 * commitSep.length);
         var commitStrs = output.split(commitSep + '\n');
         var commits = commitStrs.map(function (commitStr) {
           var commit = {};
