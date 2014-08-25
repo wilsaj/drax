@@ -62,7 +62,7 @@ describe('/api/v1/', function () {
         'git add .',
         'git commit -m "some-branch commit pt. 2"',
         'git checkout master'
-        ], {cwd: repoPath}, done);
+      ], {cwd: repoPath}, done);
     });
   });
 
@@ -94,6 +94,8 @@ describe('/api/v1/', function () {
             properties.forEach(function (prop) {
               assert(commit.hasOwnProperty(prop));
             });
+
+            assert.equal(commit.hash.length, 40);
           });
 
           if (err) {return done(err);}

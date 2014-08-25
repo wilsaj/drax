@@ -67,7 +67,7 @@ var util = {
 
     return git('log --all --format=format:' + formatStr, repoPath)
       .then(function(output) {
-        var commitStrs = output.split(commitSep).slice(0, -1);
+        var commitStrs = output.split(commitSep + '\n');
         var commits = commitStrs.map(function (commitStr) {
           var commit = {};
 
