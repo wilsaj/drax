@@ -10,6 +10,9 @@ var _s  = require('underscore.string');
 // Open the repository in the current directory.
 
 var router = function (config) {
+  var buildCommand = config.get('buildCommand');
+  var distDir = config.get('distDir');
+  var outDir = config.get('outDir');
   var repoPath = config.get('repoPath');
   var repoUrl = config.get('repoUrl');
 
@@ -23,7 +26,7 @@ var router = function (config) {
         var name = req.params[0];
         var commit = util.hashFor(name, repoPath)
           .then(function (commit) {
-            util.build(commit, repoPath)
+            util.build(commit, repoPath, buildCommand, distDir, outDir)
               .then(function(commits) {
                 res.send('built');
               })

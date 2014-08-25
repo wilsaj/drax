@@ -1,4 +1,5 @@
 'use strict';
+var path = require('path');
 
 var Promise = require('bluebird');
 var execAsync = Promise.promisify(require('child_process').exec);
@@ -35,13 +36,13 @@ var util = {
         console.log("git branches error: " + error.message);
       });
   },
-  build: function build(commit, repoPath) {
-    var distPath = repoPath + '/.dist';
-    var outPath = '/tmp/' + commit + '/';
+  build: function build(commit, repoPath, buildCommand, distDir, outDir) {
+    var distPath = path.join(repoPath, distDir);
+    var outPath = path.join(outDir, commit);
 
     return git('checkout ' + commit, repoPath)
       .then(function() {
-        return execAsync('npm install && gulp dist && rm -rf ' + outPath + ' && mv ' + distPath + ' ' + outPath, {cwd: repoPath});
+        return execAsync(buildCommand + ' && rm -rf ' + outPath + ' && mv ' + distPath + ' ' + outPath, {cwd: repoPath});
       });
   },
   clone: function clone(url, repoPath) {

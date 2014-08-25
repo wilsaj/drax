@@ -1,5 +1,8 @@
 {
   "debug": false,
   "port": 6515,
+  "distDir": "./.dist",
+  "outDir": "/tmp/drax-build/",
+  "buildCommand": "npm run dist",
   "repoPath": "/path/to/repo"
 }
