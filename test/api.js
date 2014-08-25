@@ -44,23 +44,23 @@ describe('/api/v1/', function () {
         'git init',
         'echo "hi" > hi.txt',
         'git add .',
-        'git commit -m "initial commit"',
+        'git commit -m "initial commit" --author="Testing Testerson <testdude81@aol.com>"',
         'echo "hello" > hi.txt',
         'git add .',
-        'git commit -m "changed" -m "I mean seriously." -m "we totally changed this"',
+        'git commit -m "changed" -m "I mean seriously." -m "we totally changed this" --author="Testerina Testski <testpower3726@aol.com>"',
         'git checkout -b some-branch',
         'echo "more things" >> hi.txt',
         'git add .',
-        'git commit -m "some-branch commit"',
+        'git commit -m "some-branch commit" --author="Testerina Testski <testpower3726@aol.com>"',
         'git checkout master',
         'git checkout -b another-branch',
         'echo "exciting and different things" >> hi.txt',
         'git add .',
-        'git commit -m "different things"',
+        'git commit -m "different things" --author="Testerina Testski <testpower3726@aol.com>"',
         'git checkout some-branch',
         'echo "even more things" >> hi.txt',
         'git add .',
-        'git commit -m "some-branch commit pt. 2"',
+        'git commit -m "some-branch commit pt. 2" --author="Testing Testerson <testdude81@aol.com>"',
         'git checkout master'
       ], {cwd: repoPath}, done);
     });
@@ -81,21 +81,48 @@ describe('/api/v1/', function () {
           var commits = JSON.parse(res.text).commits;
           assert.equal(commits.length,  5);
 
-          var properties = [
-            'hash',
-            'branches',
-            'authorName',
-            'authorEmail',
-            'subject',
-            'body'
+          var commitTests = [
+            {
+              branches: ['another-branch'],
+              authorName: 'Testerina Testski',
+              authorEmail: 'testpower3726@aol.com',
+              subject: 'different things',
+              body: ''
+            }, {
+              branches: [ 'some-branch' ],
+              authorName: 'Testing Testerson',
+              authorEmail: 'testdude81@aol.com',
+              subject: 'some-branch commit pt. 2',
+              body: ''
+            }, {
+              branches: [ '' ],
+              authorName: 'Testerina Testski',
+              authorEmail: 'testpower3726@aol.com',
+              subject: 'some-branch commit',
+              body: ''
+            }, {
+              branches: [ 'HEAD', 'master' ],
+              authorName: 'Testerina Testski',
+              authorEmail: 'testpower3726@aol.com',
+              subject: 'changed',
+              body: 'I mean seriously.\n\nwe totally changed this\n'
+            }, {
+              branches: [ '' ],
+              authorName: 'Testing Testerson',
+              authorEmail: 'testdude81@aol.com',
+              subject: 'initial commit',
+              body: ''
+            }
           ];
 
-          commits.forEach(function (commit) {
-            properties.forEach(function (prop) {
-              assert(commit.hasOwnProperty(prop));
-            });
+          commits.forEach(function (commit, index) {
+            var commitTest = commitTests[index];
 
             assert.equal(commit.hash.length, 40);
+
+            Object.keys(commitTest).forEach(function (key) {
+              assert.deepEqual(commitTest[key], commit[key]);
+            });
           });
 
           if (err) {return done(err);}
