@@ -42,7 +42,7 @@ var util = {
 
     return git('checkout ' + commit, repoPath)
       .then(function() {
-        return execAsync(buildCommand + ' && rm -rf ' + outPath + ' && mv ' + distPath + ' ' + outPath, {cwd: repoPath});
+        return execAsync('mkdir -p ' + outDir + ' && ' + buildCommand + ' && rm -rf ' + outPath + ' && mv ' + distPath + ' ' + outPath, {cwd: repoPath});
       });
   },
   clone: function clone(url, repoPath) {
