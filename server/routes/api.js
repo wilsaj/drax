@@ -63,7 +63,7 @@ var router = function (config) {
 
   router.route('/commits')
     .get(function(req, res) {
-      util.commits(repoPath)
+      util.commits(repoPath, outDir)
         .then(function(commits) {
           res.json({
             'commits': commits

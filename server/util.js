@@ -54,7 +54,7 @@ var util = {
   clone: function clone(url, repoPath) {
     return git('clone ' + url + ' ' + repoPath);
   },
-  commits: function commits(repoPath) {
+  commits: function commits(repoPath, outDir) {
     // separator that won't naturally occur in any part of commit log
     var propertySep = '::-PROPERTYSEP-::';
     var commitSep = '::-COMMITSEP-::';
@@ -94,6 +94,13 @@ var util = {
         });
 
         return commits;
+      })
+      .map(function (commit) {
+        return util.status(commit.hash, repoPath, outDir)
+          .then(function (status) {
+            commit.status = status.status;
+            return commit;
+          });
       });
   },
   hashFor: function hashFor(name, repoPath) {

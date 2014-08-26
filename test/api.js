@@ -79,65 +79,6 @@ describe('/api/v1/', function () {
     ], {}, done);
   });
 
-  describe('/commits', function() {
-    it('GET should return an object containing all commits', function (done) {
-      request(app)
-        .get(apiPre + '/commits')
-        .expect(200)
-        .end(function(err, res){
-          var commits = JSON.parse(res.text).commits;
-          assert.equal(commits.length,  5);
-
-          var commitTests = [
-            {
-              branches: ['another-branch'],
-              authorName: 'Testerina Testski',
-              authorEmail: 'testpower3726@aol.com',
-              subject: 'different things',
-              body: ''
-            }, {
-              branches: ['some-branch'],
-              authorName: 'Testing Testerson',
-              authorEmail: 'testdude81@aol.com',
-              subject: 'some-branch commit pt. 2',
-              body: ''
-            }, {
-              branches: [],
-              authorName: 'Testerina Testski',
-              authorEmail: 'testpower3726@aol.com',
-              subject: 'some-branch commit',
-              body: ''
-            }, {
-              branches: [ 'HEAD', 'master' ],
-              authorName: 'Testerina Testski',
-              authorEmail: 'testpower3726@aol.com',
-              subject: 'changed',
-              body: 'I mean seriously.\n\nwe totally changed this\n'
-            }, {
-              branches: [],
-              authorName: 'Testing Testerson',
-              authorEmail: 'testdude81@aol.com',
-              subject: 'initial commit',
-              body: 'starting off\n'
-            }
-          ];
-
-          commits.forEach(function (commit, index) {
-            var commitTest = commitTests[index];
-
-            assert.equal(commit.hash.length, 40);
-
-            Object.keys(commitTest).forEach(function (key) {
-              assert.deepEqual(commitTest[key], commit[key]);
-            });
-          });
-
-          if (err) {return done(err);}
-          done();
-        });
-    });
-  });
-
   describe('/build', function() {
     it('building should work for branch names', function (done) {
       var buildName = 'master';
@@ -209,6 +150,72 @@ describe('/api/v1/', function () {
       });
     });
   });
+
+  describe('/commits', function() {
+    it('GET should return an object containing all commits', function (done) {
+      request(app)
+        .get(apiPre + '/commits')
+        .expect(200)
+        .end(function(err, res){
+          var commits = JSON.parse(res.text).commits;
+          assert.equal(commits.length,  5);
+
+          var commitTests = [
+            {
+              branches: ['another-branch'],
+              authorName: 'Testerina Testski',
+              authorEmail: 'testpower3726@aol.com',
+              subject: 'different things',
+              body: '',
+              status: 'built'
+            }, {
+              branches: ['some-branch'],
+              authorName: 'Testing Testerson',
+              authorEmail: 'testdude81@aol.com',
+              subject: 'some-branch commit pt. 2',
+              body: '',
+              status: 'not built'
+            }, {
+              branches: [],
+              authorName: 'Testerina Testski',
+              authorEmail: 'testpower3726@aol.com',
+              subject: 'some-branch commit',
+              body: '',
+              status: 'not built'
+            }, {
+              branches: [ 'HEAD', 'master' ],
+              authorName: 'Testerina Testski',
+              authorEmail: 'testpower3726@aol.com',
+              subject: 'changed',
+              body: 'I mean seriously.\n\nwe totally changed this\n',
+              status: 'built'
+            }, {
+              branches: [],
+              authorName: 'Testing Testerson',
+              authorEmail: 'testdude81@aol.com',
+              subject: 'initial commit',
+              body: 'starting off\n',
+              status: 'built'
+            }
+          ];
+
+          commits.forEach(function (commit, index) {
+            var commitTest = commitTests[index];
+
+            assert.equal(commit.hash.length, 40);
+
+            Object.keys(commitTest).forEach(function (key) {
+              assert.deepEqual(commitTest[key], commit[key]);
+            });
+          });
+
+          if (err) {return done(err);}
+          done();
+        });
+    });
+  });
+
+
 
   describe('/preview', function() {
     it('preview should work for existing commits and files', function (done) {
