@@ -1,5 +1,8 @@
 'use strict';
 
+var fs = require('fs');
+var path = require('path');
+
 var bodyParser = require('body-parser');
 var express = require('express');
 var util = require('../util');
@@ -73,6 +76,8 @@ var router = function (config) {
           res.send(403, error.message);
         });
       });
+
+  router.use('/preview', express.static(outDir));
 
   return router;
 };

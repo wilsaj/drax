@@ -15,7 +15,7 @@ var outDir = path.join(__dirname, '.test-out');
 var conf = {
   'repoPath': repoPath,
   'outDir': outDir,
-  'buildCommand': 'mkdir -p .dist && cp ./* .dist',
+  'buildCommand': 'mkdir -p .dist && cp -r ./* .dist',
   'NODE_ENV': 'test'
 };
 
@@ -59,6 +59,8 @@ describe('/api/v1/', function () {
         'git checkout master',
         'git checkout -b another-branch',
         'echo "exciting and different things" >> hi.txt',
+        'mkdir -p some-dir',
+        'echo "here be words" >> some-dir/index.html',
         'git add .',
         'git commit -m "different things" --author="Testerina Testski <testpower3726@aol.com>"',
         'git checkout some-branch',
@@ -200,6 +202,24 @@ describe('/api/v1/', function () {
             fs.readFile(testPath, function(err, data) {
               assert.equal(data.toString(), 'hello\nexciting and different things\n');
             });
+
+            if (err) {return done(err);}
+            done();
+          });
+      });
+    });
+  });
+
+  describe('/preview', function() {
+    it('preview should work for existing commits and files', function (done) {
+      exec('git log -1 --format=format:%H master', {cwd: repoPath}, function (err, stdout, stderr) {
+        var commit = stdout;
+
+        request(app)
+          .get(apiPre + '/preview/' + commit + '/hi.txt')
+          .expect(200)
+          .end(function(err, res){
+            assert.equal(res.text, 'hello\n');
 
             if (err) {return done(err);}
             done();
