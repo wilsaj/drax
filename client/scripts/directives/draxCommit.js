@@ -4,9 +4,11 @@ var draxCommit = function() {
   return {
     restrict: 'A',
     template:
-      '<h3>commit</h3>' +
-      '<p>{{ commit.hash }}</p>' +
-      '<p>{{ commit.subject }}</p>' +
-      '<p>{{ commit.body }}</p>'
+      '<div class="commit">' +
+        '<h3>commit</h3>' +
+        '<p>{{ commit.hash }}</p>' +
+        '<p>{{ commit.subject }}</p>' +
+        '<p>{{ commit.body }}</p>' +
+      '</div>'
   };
 };
