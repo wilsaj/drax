@@ -227,4 +227,35 @@ describe('/api/v1/', function () {
       });
     });
   });
+
+
+  describe('/status', function() {
+    it('should return "built" status for built commits', function (done) {
+      exec('git log -1 --format=format:%H master', {cwd: repoPath}, function (err, stdout, stderr) {
+        var commit = stdout;
+
+        request(app)
+          .get(apiPre + '/status/' + commit)
+          .expect(200, JSON.stringify({status: 'built'}), done);
+      });
+    });
+
+    it('should return "not built" status for non-built commits', function (done) {
+      exec('git log -1 --skip 1 --format=format:%H some-branch', {cwd: repoPath}, function (err, stdout, stderr) {
+        var commit = stdout;
+
+        request(app)
+          .get(apiPre + '/status/' + commit)
+          .expect(200, JSON.stringify({status: 'not built'}), done);
+      });
+    });
+
+    it('should return 404 for non-existant commits', function (done) {
+      var commit = '15a52b49cfb3217a64b77b755bc3a10e6c3f2fc8';
+
+      request(app)
+        .get(apiPre + '/status/' + commit)
+        .expect(404, done);
+    });
+  });
 });

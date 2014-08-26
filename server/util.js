@@ -1,8 +1,10 @@
 'use strict';
+var fs = require('fs');
 var path = require('path');
 
 var Promise = require('bluebird');
 var execAsync = Promise.promisify(require('child_process').exec);
+var statAsync = Promise.promisify(require('fs').stat);
 var _s  = require('underscore.string');
 
 
@@ -101,11 +103,32 @@ var util = {
       })
       .catch(function(error) {
         if (_s.include(error.message, 'unknown revision or path not in the working tree')) {
-          throw "No commit or branch found for: " + name;
+          throw new Error("No commit or branch found for: " + name);
         }
         else {
           throw error.message;
         }
+      });
+  },
+  status: function status(commit, repoPath, outDir) {
+    return util.hashFor(commit, repoPath)
+      .then(function (validCommit) {
+        var buildDir = path.join(outDir, commit);
+
+        return statAsync(buildDir);
+      })
+      .then(function (stats) {
+        return {
+          status: 'built'
+        };
+      })
+      .catch(function (error) {
+        if (_s.startsWith(error.message, 'ENOENT, stat')) {
+          return {
+            status: 'not built'
+          };
+        }
+        throw error;
       });
   }
 };
