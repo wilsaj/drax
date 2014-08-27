@@ -1,14 +1,15 @@
-var draxCommit = function() {
-  'use strict';
+angular.module('draxApp')
+  .directive('draxCommit', function() {
+    'use strict';
 
-  return {
-    restrict: 'A',
-    template:
-      '<div class="commit">' +
-        '<h3>commit</h3>' +
-        '<p>{{ commit.hash }}</p>' +
-        '<p>{{ commit.subject }}</p>' +
-        '<p>{{ commit.body }}</p>' +
-      '</div>'
-  };
-};
+    return {
+      restrict: 'A',
+      template:
+        '<div class="commit">' +
+          '<h3>commit</h3>' +
+          '<p>{{ commit.hash }}</p>' +
+          '<p>{{ commit.subject }}</p>' +
+          '<p>{{ commit.body }}</p>' +
+        '</div>'
+    };
+  });
