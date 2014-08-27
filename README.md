@@ -7,13 +7,16 @@ Drax the Deployer wants to savagely dispatch your static web content.
 Requirements
 ------------
 
-- nodejs
+- node
+- git
+- bower
 
 
 Setup
 -----
 
-First, run `npm install` to get the requisite node modules.
+First, run `npm install` to get the requisite node modules. Then run `bower
+install` to get the requisite bower modules.
 
 
 Usage
