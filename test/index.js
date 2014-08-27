@@ -9,6 +9,6 @@ describe('/', function () {
   it('GET should return "hi"', function (done) {
     request(app)
       .get('/')
-      .expect(200, "hi", done);
+      .expect(200, done);
   });
 });
