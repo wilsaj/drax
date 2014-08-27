@@ -2,5 +2,9 @@
   "name": "drax",
   "version": "0.0.1",
   "homepage": "https://github.com/wilsaj/drax",
-  "license": "BSD"
+  "license": "BSD",
+  "dependencies": {
+    "angular": "~1.2.23",
+    "bootstrap": "~3.2.0"
+  }
 }
