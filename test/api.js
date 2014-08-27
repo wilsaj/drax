@@ -11,6 +11,7 @@ var should = require('should');
 
 var repoPath = path.join(__dirname, '.test-repo');
 var outDir = path.join(__dirname, '.test-out');
+var outDirSlow = outDir + '-slow';
 
 var conf = {
   'repoPath': repoPath,
@@ -20,6 +21,16 @@ var conf = {
 };
 
 var app = require('../.dist/server')(conf).app;
+
+
+var slowConf = {
+  'repoPath': repoPath,
+  'outDir': outDirSlow,
+  'buildCommand': 'sleep 1 && mkdir -p .dist && cp -r ./* .dist',
+  'NODE_ENV': 'test'
+};
+
+var slowBuildApp = require('../.dist/server')(slowConf).app;
 
 var apiPre = '/api/v1/';
 
@@ -84,7 +95,8 @@ describe('/api/v1/', function () {
   after(function (done) {
     execSeries([
       'rm -rf ' + repoPath,
-      'rm -rf ' + outDir
+      'rm -rf ' + outDir,
+      'rm -rf ' + outDirSlow
     ], {}, done);
   });
 
@@ -269,6 +281,22 @@ describe('/api/v1/', function () {
         request(app)
           .get(apiPre + '/status/' + commit)
           .expect(200, JSON.stringify({status: 'not built'}), done);
+      });
+    });
+
+    it('should return "building" status for builds in process', function (done) {
+      exec('git log -1 --skip 1 --format=format:%H some-branch', {cwd: repoPath}, function (err, stdout, stderr) {
+        var commit = stdout;
+
+        request(slowBuildApp)
+          .get(apiPre + '/build/' + commit)
+          .end(function (err, res) {
+            setTimeout(function () {
+              request(slowBuildApp)
+                .get(apiPre + '/status/' + commit)
+                .expect(200, JSON.stringify({status: 'building'}), done);
+            }, 10);
+          });
       });
     });
 

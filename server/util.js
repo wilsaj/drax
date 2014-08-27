@@ -120,14 +120,23 @@ var util = {
   status: function status(commit, repoPath, outDir) {
     return util.hashFor(commit, repoPath)
       .then(function (validCommit) {
-        var buildDir = path.join(outDir, commit);
+        var builtDir = path.join(outDir, commit);
+        var buildingDir = builtDir + '-build';
 
-        return statAsync(buildDir);
-      })
-      .then(function (stats) {
-        return {
-          status: 'built'
-        };
+        return statAsync(buildingDir)
+          .then(function (stats) {
+            return {
+              status: 'building'
+            };
+          })
+          .catch(function (error) {
+            return statAsync(builtDir)
+              .then(function (stats) {
+                return {
+                  status: 'built'
+                };
+              });
+          });
       })
       .catch(function (error) {
         if (_s.startsWith(error.message, 'ENOENT, stat')) {
