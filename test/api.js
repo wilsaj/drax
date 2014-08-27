@@ -38,6 +38,15 @@ function execSeries(commands, options, callback) {
 }
 
 
+function watchFor(watchDir, watchFile, callback) {
+  return fs.watch(watchDir, {interval: 10}, function(event, filename) {
+    if (filename === watchFile) {
+      callback();
+    }
+  });
+}
+
+
 describe('/api/v1/', function () {
   before(function (done) {
     execSeries([
@@ -90,16 +99,18 @@ describe('/api/v1/', function () {
           .get(apiPre + '/build/' + buildName)
           .expect(200)
           .end(function(err, res){
-            assert.equal(res.text, 'built');
+            assert.equal(res.text, 'building');
 
             var testPath = path.join(outDir, commit, 'hi.txt');
 
-            fs.readFile(testPath, function(err, data) {
-              assert.equal(data.toString(), 'hello\n');
+            watchFor(outDir, commit, function() {
+              fs.readFile(testPath, function(err, data) {
+                assert.equal(data.toString(), 'hello\n');
+                done();
+              });
             });
 
             if (err) {return done(err);}
-            done();
           });
       });
     });
@@ -112,16 +123,18 @@ describe('/api/v1/', function () {
           .get(apiPre + '/build/' + commit)
           .expect(200)
           .end(function(err, res){
-            assert.equal(res.text, 'built');
+            assert.equal(res.text, 'building');
 
-            var testPath = path.join(outDir, commit, 'hi.txt');
+            watchFor(outDir, commit, function() {
+              var testPath = path.join(outDir, commit, 'hi.txt');
 
-            fs.readFile(testPath, function(err, data) {
-              assert.equal(data.toString(), 'hi\n');
+              fs.readFile(testPath, function(err, data) {
+                assert.equal(data.toString(), 'hi\n');
+                done();
+              });
             });
 
             if (err) {return done(err);}
-            done();
           });
       });
     });
@@ -136,16 +149,18 @@ describe('/api/v1/', function () {
           .get(apiPre + '/build/' + partialCommit)
           .expect(200)
           .end(function(err, res){
-            assert.equal(res.text, 'built');
+            assert.equal(res.text, 'building');
 
-            var testPath = path.join(outDir, commit, 'hi.txt');
+            watchFor(outDir, commit, function() {
+              var testPath = path.join(outDir, commit, 'hi.txt');
 
-            fs.readFile(testPath, function(err, data) {
-              assert.equal(data.toString(), 'hello\nexciting and different things\n');
+              fs.readFile(testPath, function(err, data) {
+                assert.equal(data.toString(), 'hello\nexciting and different things\n');
+                done();
+              });
             });
 
             if (err) {return done(err);}
-            done();
           });
       });
     });
