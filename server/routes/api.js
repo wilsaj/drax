@@ -26,14 +26,8 @@ var router = function (config) {
       var name = req.params[0];
       var commit = util.hashFor(name, repoPath)
         .then(function (commit) {
-          util.build(commit, repoPath, buildCommand, distDir, outDir)
-            .then(function(commits) {
-              res.send('built');
-            })
-            .catch(function(error) {
-              console.log(error.message);
-              res.send(500, error.message);
-            });
+          util.build(commit, repoPath, buildCommand, distDir, outDir);
+          res.send('building');
         })
         .catch(function(error) {
           res.send(500, error.message);

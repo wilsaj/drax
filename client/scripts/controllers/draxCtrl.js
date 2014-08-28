@@ -1,10 +1,11 @@
-var draxCtrl = function ($scope, DataService) {
-  'use strict';
+angular.module('draxApp')
+  .controller('draxCtrl', function ($scope, DataService) {
+    'use strict';
 
-  $scope.commits = [];
+    $scope.commits = [];
 
-  DataService.getCommits()
-    .then(function (commits) {
-      $scope.commits = commits;
-    });
-};
+    DataService.getCommits()
+      .then(function (commits) {
+        $scope.commits = commits;
+      });
+  });

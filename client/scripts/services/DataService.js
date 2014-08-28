@@ -1,17 +1,18 @@
-var DataService = function ($http)  {
-  'use strict';
+angular.module('draxApp')
+  .factory('DataService', function ($http)  {
+    'use strict';
 
-  var apiPre = '/api/v1/';
+    var apiPre = '/api/v1/';
 
-  DataService = {};
+    var DataService = {};
 
-  DataService.getCommits = function getCommits() {
-    return $http.get(apiPre + '/commits')
-      .then(function (resp) {
-        return resp.data.commits;
-      });
-  };
+    DataService.getCommits = function getCommits() {
+      return $http.get(apiPre + '/commits')
+        .then(function (resp) {
+          return resp.data.commits;
+        });
+    };
 
 
-  return DataService;
-};
+    return DataService;
+  });

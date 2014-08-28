@@ -5,6 +5,7 @@ var mocha = require('gulp-mocha');
 var rimraf = require('gulp-rimraf');
 var runSequence = require('run-sequence');
 var sass = require('gulp-ruby-sass');
+var templateCache = require('gulp-angular-templatecache');
 var useref = require('gulp-useref');
 
 var dirs = {
@@ -18,6 +19,7 @@ var dirs = {
 
 dirs.scss = dirs.client + '/scss';
 dirs.templates = dirs.server + '/views';
+dirs.angularTemplates = dirs.client + '/scripts/templates';
 dirs.tmpUseref = dirs.tmp + '/useref';
 
 var paths = {
@@ -25,6 +27,7 @@ var paths = {
   server: dirs.server + '/**/*',
   scss: dirs.scss + '/**/*.scss',
   templates: dirs.templates + '/**/*',
+  angularTemplates: dirs.angularTemplates + '/**/*.html',
   tmpUseref: dirs.tmpUseref + '/*'
 };
 
@@ -47,6 +50,7 @@ gulp.task('dist-client', ['dist-other', 'dist-scss', 'dist-useref']);
 gulp.task('dist-other', function () {
   var otherPaths = [
       '!' + paths.scss,
+      '!' + paths.angularTemplates,
       paths.client
   ];
 
@@ -62,9 +66,16 @@ gulp.task('dist-scss', function () {
 
 gulp.task('dist-useref', ['dist-useref-assets', 'dist-useref-templates']);
 
-gulp.task('dist-useref-tmp', function() {
+gulp.task('dist-angular-template-cache', function () {
+    gulp.src(paths.angularTemplates)
+        .pipe(templateCache({module: 'draxApp'}))
+        .pipe(gulp.dest(dirs.dist + '/' + dirs.client + '/scripts'));
+});
+
+
+gulp.task('dist-useref-tmp', ['dist-angular-template-cache', 'dist-other'],function() {
   var assets = useref.assets({
-    searchPath: dirs.client
+    searchPath: dirs.dist + '/' + dirs.client
   });
 
   return gulp.src(paths.templates)
