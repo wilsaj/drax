@@ -1,17 +1,17 @@
 <div class="commit">
   <h3>commit</h3>
   <div class="btn-group">
-    <a class="btn btn-default" href="/api/v1/build/{{commit.hash}}">
-      <span ng-if="commit.status === 'not built'" >
+    <button class="btn btn-default" ng-click="build()">
+      <span ng-if="commit.status === 'not built'">
         <i class="fa fa-wrench"></i>
       </span>
-      <span ng-if="commit.status === 'built'" >
+      <span ng-if="commit.status === 'built'">
         <i class="fa fa-refresh"></i>
       </span>
-      <span ng-if="commit.status === 'building'" >
+      <span ng-if="commit.status === 'building'">
         <i class="fa fa-refresh fa-spin"></i>
       </span>
-    </a>
+    </button>
     <a class="btn btn-default" ng-disabled="commit.status !== 'built'" href="/api/v1/preview/{{commit.hash}}">
       <i class="fa fa-eye"></i>
     </a>

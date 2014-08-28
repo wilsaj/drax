@@ -6,6 +6,13 @@ angular.module('draxApp')
 
     var DataService = {};
 
+    DataService.build = function build(commit) {
+      return $http.get(apiPre + '/build/' + commit)
+        .then(function (resp) {
+          return resp.data.status;
+        });
+    };
+
     DataService.getCommits = function getCommits() {
       return $http.get(apiPre + '/commits')
         .then(function (resp) {
