@@ -111,7 +111,7 @@ describe('/api/v1/', function () {
           .get(apiPre + '/build/' + buildName)
           .expect(200)
           .end(function(err, res){
-            assert.equal(res.text, 'building');
+            assert.equal(res.text, JSON.stringify({status: 'building'}));
 
             var testPath = path.join(outDir, commit, 'hi.txt');
 
@@ -135,7 +135,7 @@ describe('/api/v1/', function () {
           .get(apiPre + '/build/' + commit)
           .expect(200)
           .end(function(err, res){
-            assert.equal(res.text, 'building');
+            assert.equal(res.text, JSON.stringify({status: 'building'}));
 
             watchFor(outDir, commit, function() {
               var testPath = path.join(outDir, commit, 'hi.txt');
@@ -161,7 +161,7 @@ describe('/api/v1/', function () {
           .get(apiPre + '/build/' + partialCommit)
           .expect(200)
           .end(function(err, res){
-            assert.equal(res.text, 'building');
+            assert.equal(res.text, JSON.stringify({status: 'building'}));
 
             watchFor(outDir, commit, function() {
               var testPath = path.join(outDir, commit, 'hi.txt');
