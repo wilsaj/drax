@@ -395,17 +395,21 @@ describe('/api/v1/', function () {
   });
 
   describe('start up', function() {
-    it('partial builds should be flushed at server start', function (done) {
+    it('should not start with any commits in a "building" state', function (done) {
       exec('git log -1 --all --skip 4 --topo-order --format=format:%H', {cwd: repoPath}, function (err, stdout, stderr) {
         var commit = stdout;
 
         startupBuild.start(testPort + 2, function () {
+          // request a build
           request(startupBuild.app)
             .get(apiPre + '/build/' + commit)
             .expect(200)
             .end(function () {
+              // allow some time for the build to start
               setTimeout(function () {
+                // stop server
                 startupBuild.stop(function () {
+                  // start server up again and make sure status is reset to "not built"
                   startupBuild.start(testPort + 2, function () {
                     request(startupBuild.app)
                       .get(apiPre + '/status/' + commit)
