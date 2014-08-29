@@ -4,21 +4,23 @@ var path = require('path');
 var nconf = require('nconf');
 
 module.exports = function (options) {
-  nconf.overrides(options);
+  var conf = nconf.Provider();
 
-  nconf.env(['debug', 'NODE_ENV']);
+  conf.overrides(options);
 
-  process.env.NODE_ENV = nconf.get('NODE_ENV') || 'production';
+  conf.env(['debug', 'NODE_ENV']);
 
-  nconf.file('secrets', {
+  process.env.NODE_ENV = conf.get('NODE_ENV') || 'production';
+
+  conf.file('secrets', {
     type: 'file',
     file: path.join(__dirname, 'secrets',  process.env.NODE_ENV + '.json')
   });
 
-  nconf.file('default', {
+  conf.file('default', {
     type: 'file',
     file: path.join(__dirname, 'defaults.json')
   });
 
-  return nconf;
+  return conf;
 };
