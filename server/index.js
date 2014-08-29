@@ -4,6 +4,7 @@ var http = require('http');
 
 var Config = require('./config');
 var Routes = require('./routes');
+var util = require('./util');
 
 var Server = function (options) {
   var app = express();
@@ -24,14 +25,18 @@ var Server = function (options) {
       callback = callback || function () {};
       port = port || config.get('port');
 
-      server.listen(port, function () {
-        console.log('Express server listening on port %d in %s mode', port, app.get('env'));
-        callback();
-      });
+      util.clearPartials(config.get('outDir'))
+        .then(function () {
+          server.listen(port, function () {
+            console.log('Express server listening on port %d in %s mode', port, app.get('env'));
+            callback();
+          });
+        });
+
     },
     stop: function(callback) {
       callback = callback || function () {};
-      server.close(function () {callback();});
+      server.close(callback);
     }
   };
 };

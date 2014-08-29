@@ -13,7 +13,7 @@ var should = require('should');
 var repoPath = path.join(__dirname, '.test-repo');
 var outDir = path.join(__dirname, '.test-out');
 var outDirSlow = outDir + '-slow';
-
+var outDirStartup = outDir + '-startup';
 
 var testPort = 7357;
 
@@ -37,10 +37,21 @@ var slowConf = {
   'port': testPort + 1
 };
 
-var slowBuildApp = require('../.dist/server')(slowConf).app;
+var slowBuild = require('../.dist/server')(slowConf);
+
+
+var startupConf = {
+  'repoPath': repoPath,
+  'outDir': outDirStartup,
+  'buildCommand': 'sleep 10 && mkdir -p .dist && cp -r ./* .dist',
+  'NODE_ENV': 'test',
+  'port': testPort + 2
+};
+
+var startupBuild = require('../.dist/server')(startupConf);
+
 
 var apiPre = '/api/v1/';
-
 
 
 // helper function for running exec commands in series
@@ -125,7 +136,8 @@ describe('/api/v1/', function () {
     execSeries([
       'rm -rf ' + repoPath,
       'rm -rf ' + outDir,
-      'rm -rf ' + outDirSlow
+      'rm -rf ' + outDirSlow,
+      'rm -rf ' + outDirStartup
     ], {}, done);
   });
 
@@ -317,11 +329,11 @@ describe('/api/v1/', function () {
       exec('git log -1 --skip 1 --format=format:%H some-branch', {cwd: repoPath}, function (err, stdout, stderr) {
         var commit = stdout;
 
-        request(slowBuildApp)
+        request(slowBuild.app)
           .get(apiPre + '/build/' + commit)
           .end(function (err, res) {
             setTimeout(function () {
-              request(slowBuildApp)
+              request(slowBuild.app)
                 .get(apiPre + '/status/' + commit)
                 .expect(200, JSON.stringify({status: 'building'}), done);
             }, 10);
@@ -339,11 +351,11 @@ describe('/api/v1/', function () {
   });
 
   describe('websockets', function() {
-    beforeEach(function (done) {
+    before(function (done) {
       server.start(testPort, done);
     });
 
-    afterEach(function (done) {
+    after(function (done) {
       server.stop(done);
     });
 
@@ -377,6 +389,31 @@ describe('/api/v1/', function () {
             .get(apiPre + '/build/' + commit)
             .expect(200)
             .end(function () {});
+        });
+      });
+    });
+  });
+
+  describe('start up', function() {
+    it('partial builds should be flushed at server start', function (done) {
+      exec('git log -1 --all --skip 4 --topo-order --format=format:%H', {cwd: repoPath}, function (err, stdout, stderr) {
+        var commit = stdout;
+
+        startupBuild.start(testPort + 2, function () {
+          request(startupBuild.app)
+            .get(apiPre + '/build/' + commit)
+            .expect(200)
+            .end(function () {
+              setTimeout(function () {
+                startupBuild.stop(function () {
+                  startupBuild.start(testPort + 2, function () {
+                    request(startupBuild.app)
+                      .get(apiPre + '/status/' + commit)
+                      .expect(200, JSON.stringify({status: 'not built'}), done);
+                  });
+                });
+              }, 100);
+            });
         });
       });
     });
