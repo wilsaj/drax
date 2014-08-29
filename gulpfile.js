@@ -17,17 +17,21 @@ var dirs = {
   tmp: '.tmp'
 };
 
+dirs.angularTemplates = dirs.client + '/scripts/templates';
+dirs.bower = dirs.client + '/bower_components';
+dirs.fonts = dirs.bower + '/fontawesome/fonts';
 dirs.scss = dirs.client + '/scss';
 dirs.templates = dirs.server + '/views';
-dirs.angularTemplates = dirs.client + '/scripts/templates';
 dirs.tmpUseref = dirs.tmp + '/useref';
 
 var paths = {
-  client: dirs.client + '/**/*',
-  server: dirs.server + '/**/*',
-  scss: dirs.scss + '/**/*.scss',
-  templates: dirs.templates + '/**/*',
   angularTemplates: dirs.angularTemplates + '/**/*.html',
+  bower: dirs.bower + '/**/*',
+  client: dirs.client + '/**/*',
+  fonts: dirs.fonts + '/**/*',
+  scss: dirs.scss + '/**/*.scss',
+  server: dirs.server + '/**/*',
+  templates: dirs.templates + '/**/*',
   tmpUseref: dirs.tmpUseref + '/*'
 };
 
@@ -45,7 +49,7 @@ gulp.task('watch', function () {
 });
 
 gulp.task('dist', ['dist-server', 'dist-client']);
-gulp.task('dist-client', ['dist-other', 'dist-scss', 'dist-useref']);
+gulp.task('dist-client', ['dist-fonts', 'dist-other', 'dist-scss', 'dist-useref']);
 
 gulp.task('dist-other', function () {
   var otherPaths = [
@@ -56,6 +60,11 @@ gulp.task('dist-other', function () {
 
   return gulp.src(otherPaths)
     .pipe(gulp.dest(dirs.dist + '/' + dirs.client));
+});
+
+gulp.task('dist-fonts', function () {
+  return gulp.src(paths.fonts)
+    .pipe(gulp.dest(dirs.dist + '/' + dirs.client + '/fonts'));
 });
 
 gulp.task('dist-scss', function () {

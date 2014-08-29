@@ -3,7 +3,9 @@ var fs = require('fs');
 var path = require('path');
 
 var Promise = require('bluebird');
+var rimrafAsync = Promise.promisify(require('rimraf'));
 var execAsync = Promise.promisify(require('child_process').exec);
+var readdirAsync = Promise.promisify(require('fs').readdir);
 var statAsync = Promise.promisify(require('fs').stat);
 var _s  = require('underscore.string');
 
@@ -49,6 +51,22 @@ var util = {
       })
       .then(function() {
         return execAsync('mkdir -p ' + outDir + ' && ' + buildCommand + ' && rm -rf ' + outPath + ' && mv ' + distPath + ' ' + outPath + ' && rm -rf ' + buildPath, {cwd: buildPath});
+      });
+  },
+  clearPartials: function clearPartials(outDir) {
+    return readdirAsync(outDir)
+      .then(function (dirs) {
+        var buildDirs = dirs.filter(function (dir) {
+          return _s.endsWith(dir, '-build');
+        });
+
+        return Promise.map(buildDirs, function(buildDir) {
+          return rimrafAsync(outDir + '/' + buildDir);
+        });
+      }).catch(Promise.OperationalError, function (error) {
+        if (!_s.startsWith(error.message, 'ENOENT')) {
+          throw error;
+        }
       });
   },
   clone: function clone(url, repoPath) {

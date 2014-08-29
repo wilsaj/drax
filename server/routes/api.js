@@ -9,7 +9,7 @@ var _s  = require('underscore.string');
 
 // Open the repository in the current directory.
 
-var router = function (config) {
+var router = function (config, io) {
   var buildCommand = config.get('buildCommand');
   var distDir = config.get('distDir');
   var outDir = config.get('outDir');
@@ -26,8 +26,22 @@ var router = function (config) {
       var name = req.params[0];
       var commit = util.hashFor(name, repoPath)
         .then(function (commit) {
-          util.build(commit, repoPath, buildCommand, distDir, outDir);
-          res.send('building');
+          io.emit('build', {
+            commit: commit,
+            status: 'building'
+          });
+
+          util.build(commit, repoPath, buildCommand, distDir, outDir)
+            .then(function () {
+              io.emit('build', {
+                commit: commit,
+                status: 'built'
+              });
+            });
+
+          res.json({
+            status: 'building'
+          });
         })
         .catch(function(error) {
           res.send(500, error.message);
