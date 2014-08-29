@@ -76,11 +76,14 @@ function expectSocketMessages(expected, callback) {
 
 
 function watchFor(watchDir, watchFile, callback) {
-  return fs.watch(watchDir, {interval: 10}, function(event, filename) {
+  var watcher = fs.watch(watchDir, {interval: 10}, function(event, filename) {
     if (filename === watchFile) {
+      watcher.close();
       callback();
     }
   });
+
+  return watcher;
 }
 
 
