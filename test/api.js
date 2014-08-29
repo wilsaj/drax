@@ -6,6 +6,7 @@ var path = require('path');
 
 var assert = require('assert');
 var async = require('async');
+var io = require('socket.io-client');
 var request = require('supertest');
 var should = require('should');
 
@@ -13,21 +14,27 @@ var repoPath = path.join(__dirname, '.test-repo');
 var outDir = path.join(__dirname, '.test-out');
 var outDirSlow = outDir + '-slow';
 
+
+var testPort = 7357;
+
 var conf = {
   'repoPath': repoPath,
   'outDir': outDir,
   'buildCommand': 'mkdir -p .dist && cp -r ./* .dist',
-  'NODE_ENV': 'test'
+  'NODE_ENV': 'test',
+  'port': testPort
 };
 
-var app = require('../.dist/server')(conf).app;
+var server = require('../.dist/server')(conf);
+var app = server.app;
 
 
 var slowConf = {
   'repoPath': repoPath,
   'outDir': outDirSlow,
   'buildCommand': 'sleep 1 && mkdir -p .dist && cp -r ./* .dist',
-  'NODE_ENV': 'test'
+  'NODE_ENV': 'test',
+  'port': testPort + 1
 };
 
 var slowBuildApp = require('../.dist/server')(slowConf).app;
@@ -46,6 +53,25 @@ function execSeries(commands, options, callback) {
       exec(command, options, callback);
     };
   }), callback);
+}
+
+
+// helper for testing websocket messages; returns a function to call with the
+// incoming websocket message as an argument
+//   expected is an array of message objects in the order that they are expected
+//   callback will be called after the last expected message comes in
+function expectSocketMessages(expected, callback) {
+  var i = 0;
+
+  return function processMessage(message) {
+    var expectedMessage = expected[i];
+    assert.deepEqual(expectedMessage, message);
+    i += 1;
+
+    if (i === expected.length) {
+      callback();
+    }
+  };
 }
 
 
@@ -306,6 +332,50 @@ describe('/api/v1/', function () {
       request(app)
         .get(apiPre + '/status/' + commit)
         .expect(404, done);
+    });
+  });
+
+  describe('websockets', function() {
+    beforeEach(function (done) {
+      server.start(testPort, done);
+    });
+
+    afterEach(function (done) {
+      server.stop(done);
+    });
+
+    it('/build should emit messages at start and end of build', function (done) {
+      exec('git log -1 --all --skip 4 --topo-order --format=format:%H', {cwd: repoPath}, function (err, stdout, stderr) {
+        var commit = stdout;
+
+        var socket = io.connect("http://0.0.0.0:" + testPort);
+
+        var expected = [
+          {
+            commit: commit,
+            status: "building"
+          }, {
+            commit: commit,
+            status: "built"
+          }
+        ];
+
+        var processMessage = expectSocketMessages(expected, function () {
+          socket.disconnect();
+          done();
+        });
+
+        socket.on("connect", function () {
+          socket.on("build", function (message) {
+            processMessage(message);
+          });
+
+          request(app)
+            .get(apiPre + '/build/' + commit)
+            .expect(200)
+            .end(function () {});
+        });
+      });
     });
   });
 });
