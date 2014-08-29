@@ -20,12 +20,18 @@ var Server = function (options) {
 
   return {
     app: app,
-    start: function() {
-      var port = config.get('port');
+    start: function(port, callback) {
+      callback = callback || function () {};
+      port = port || config.get('port');
 
       server.listen(port, function () {
         console.log('Express server listening on port %d in %s mode', port, app.get('env'));
+        callback();
       });
+    },
+    stop: function(callback) {
+      callback = callback || function () {};
+      server.close(function () {callback();});
     }
   };
 };
