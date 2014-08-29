@@ -4,7 +4,7 @@ var path = require('path');
 var nconf = require('nconf');
 
 module.exports = function (options) {
-  var conf = nconf.Provider();
+  var conf = new nconf.Provider();
 
   conf.overrides(options);
 
