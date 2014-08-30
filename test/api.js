@@ -142,6 +142,7 @@ describe('/api/v1/', function () {
   after(function (done) {
     execSeries([
       'rm -rf ' + repoPath,
+      'rm -rf ' + deployDir,
       'rm -rf ' + outDir,
       'rm -rf ' + outDirSlow,
       'rm -rf ' + outDirStartup
