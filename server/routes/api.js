@@ -89,14 +89,22 @@ var router = function (config, io) {
 
       var deployDir = config.get('deployments')[deployment];
 
-      util.deploy(deployDir, commit, outDir, repoPath)
-        .then(function(deploy) {
-          res.json(deploy);
-        })
-        .catch(function(error) {
-          res.send(403, error.message);
+      if (!deployDir) {
+        res.json({
+          status: 'error',
+          message: 'no deployment has been configured for: ' + deployment
         });
-      });
+      }
+      else {
+        util.deploy(deployDir, commit, outDir, repoPath)
+          .then(function(deploy) {
+            res.json(deploy);
+          })
+          .catch(function(error) {
+            res.send(403, error.message);
+          });
+      }
+    });
 
   router.route('/status/:commit')
     .get(function(req, res) {

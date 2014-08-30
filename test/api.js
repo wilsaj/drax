@@ -374,6 +374,23 @@ describe('/api/v1/', function () {
           .expect(200, JSON.stringify(expected), done);
       });
     });
+
+    it('should return error status for undefined deploy names', function (done) {
+      exec('git log -1 --skip 1 --format=format:%H some-branch', {cwd: repoPath}, function (err, stdout, stderr) {
+        var commit = stdout;
+
+        var deploy = 'special-test';
+
+        var expected = {
+          status: 'error',
+          message: 'no deployment has been configured for: ' + deploy
+        };
+
+        request(app)
+          .get(apiPre + '/deploy/' + deploy + '/' + commit)
+          .expect(200, JSON.stringify(expected), done);
+      });
+    });
   });
 
 
