@@ -82,6 +82,22 @@ var router = function (config, io) {
         });
       });
 
+  router.route('/deploy/:deployment/:commit')
+    .get(function(req, res) {
+      var deployment = req.params.deployment;
+      var commit = req.params.commit;
+
+      var deployDir = config.get('deployments')[deployment];
+
+      util.deploy(deployDir, commit, outDir, repoPath)
+        .then(function(deploy) {
+          res.json(deploy);
+        })
+        .catch(function(error) {
+          res.send(403, error.message);
+        });
+      });
+
   router.route('/status/:commit')
     .get(function(req, res) {
       var commit = req.params.commit;

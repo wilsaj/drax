@@ -121,6 +121,39 @@ var util = {
           });
       });
   },
+  deploy: function deploy(deployDir, commit, outDir, repoPath) {
+    var builtDir = path.join(outDir, commit);
+
+    return statAsync(builtDir)
+      .then(function (stats) {
+        var deploySide = _s.rtrim(deployDir, '/') + '.drax-deploying';
+
+        return execAsync([
+              'rm -rf ' + deploySide,
+              'mkdir -p ' + deploySide,
+              'cp -r ' + builtDir + '/ ' + deploySide,
+              'rm -rf ' + deployDir,
+              'mv ' + deploySide + ' ' + deployDir
+            ].join(' && '))
+          .then(function () {
+            return {
+              status: 'deployed'
+            };
+          });
+      })
+      .catch(function (error) {
+        var message = error.message;
+
+        if (_s.startsWith(error.message, 'ENOENT, stat')) {
+          message = 'no build found for commit: ' + commit;
+        }
+
+        return {
+          status: 'error',
+          message: message
+        };
+      });
+  },
   hashFor: function hashFor(name, repoPath) {
     return execAsync('git log --format=format:%H -1 ' + name, {cwd: repoPath})
       .then(function (output) {

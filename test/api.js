@@ -15,6 +15,9 @@ var outDir = path.join(__dirname, '.test-out');
 var outDirSlow = outDir + '-slow';
 var outDirStartup = outDir + '-startup';
 
+var deployDir = path.join(__dirname, '.test-deploy');
+
+
 var testPort = 7357;
 
 var conf = {
@@ -22,7 +25,11 @@ var conf = {
   'outDir': outDir,
   'buildCommand': 'mkdir -p .dist && cp -r ./* .dist',
   'NODE_ENV': 'test',
-  'port': testPort
+  'port': testPort,
+  'deployments': {
+    'test': deployDir + '/test',
+    'staging': deployDir + '/staging'
+  }
 };
 
 var server = require('../.dist/server')(conf);
@@ -284,7 +291,6 @@ describe('/api/v1/', function () {
   });
 
 
-
   describe('/preview', function() {
     it('preview should work for existing commits and files', function (done) {
       exec('git log -1 --format=format:%H master', {cwd: repoPath}, function (err, stdout, stderr) {
@@ -299,6 +305,72 @@ describe('/api/v1/', function () {
             if (err) {return done(err);}
             done();
           });
+      });
+    });
+  });
+
+
+  describe('/deploy', function() {
+    it('should successfully deploy for built commits', function (done) {
+      exec('git log -1 --format=format:%H master', {cwd: repoPath}, function (err, stdout, stderr) {
+        var commit = stdout;
+
+        request(app)
+          .get(apiPre + '/deploy/test/' + commit)
+          .expect(200)
+          .end(function(err, res){
+            assert.equal(res.text, JSON.stringify({status: 'deployed'}));
+
+            watchFor(deployDir, 'test', function() {
+              var testPath = path.join(outDir, commit, 'hi.txt');
+
+              fs.readFile(testPath, function(err, data) {
+                assert.equal(data.toString(), 'hello\n');
+                done();
+              });
+            });
+
+            if (err) {return done(err);}
+          });
+      });
+    });
+
+    it('should successfully deploy multiple times for different built commits', function (done) {
+      exec('git log -1 --format=format:%H another-branch', {cwd: repoPath}, function (err, stdout, stderr) {
+        var commit = stdout;
+
+        request(app)
+          .get(apiPre + '/deploy/test/' + commit)
+          .expect(200)
+          .end(function(err, res){
+            assert.equal(res.text, JSON.stringify({status: 'deployed'}));
+
+            watchFor(deployDir, 'test', function() {
+              var testPath = path.join(outDir, commit, 'hi.txt');
+
+              fs.readFile(testPath, function(err, data) {
+                assert.equal(data.toString(), 'hello\nexciting and different things\n');
+                done();
+              });
+            });
+
+            if (err) {return done(err);}
+          });
+      });
+    });
+
+    it('should return error status for non-built commits', function (done) {
+      exec('git log -1 --skip 1 --format=format:%H some-branch', {cwd: repoPath}, function (err, stdout, stderr) {
+        var commit = stdout;
+
+        var expected = {
+          status: 'error',
+          message: 'no build found for commit: ' + commit
+        };
+
+        request(app)
+          .get(apiPre + '/deploy/test/' + commit)
+          .expect(200, JSON.stringify(expected), done);
       });
     });
   });
@@ -349,6 +421,7 @@ describe('/api/v1/', function () {
         .expect(404, done);
     });
   });
+
 
   describe('websockets', function() {
     before(function (done) {
