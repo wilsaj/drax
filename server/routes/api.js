@@ -44,7 +44,7 @@ var router = function (config, io) {
           });
         })
         .catch(function(error) {
-          res.send(500, error.message);
+          res.status(500).send(error.message);
         });
     });
 
@@ -62,10 +62,10 @@ var router = function (config, io) {
     .get(function(req, res) {
       util.clone(repoUrl, repoPath)
         .then(function() {
-          res.send(200, 'success');
+          res.status(200).send('success');
         })
         .catch(function(error) {
-          res.send(403, error.message);
+          res.status(403).send(error.message);
         });
       });
 
@@ -78,7 +78,7 @@ var router = function (config, io) {
           });
         })
         .catch(function(error) {
-          res.send(403, error.message);
+          res.status(403).send(error.message);
         });
       });
 
@@ -101,7 +101,7 @@ var router = function (config, io) {
             res.json(deploy);
           })
           .catch(function(error) {
-            res.send(403, error.message);
+            res.status(403).send(error.message);
           });
       }
     });
@@ -114,7 +114,7 @@ var router = function (config, io) {
         .then(function(status) {
           res.json(status);
         }).catch(function (error) {
-          res.send(404, error.message);
+          res.status(404).send(error.message);
         });
     });
 
