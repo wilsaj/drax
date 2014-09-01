@@ -4,7 +4,7 @@ var bodyParser = require('body-parser');
 var express = require('express');
 var util = require('../util');
 var _s  = require('underscore.string');
-
+var _ = require('lodash');
 
 
 // Open the repository in the current directory.
@@ -82,20 +82,20 @@ var router = function (config, io) {
         });
       });
 
-  router.route('/deploy/:deployment/:commit')
+  router.route('/deploy/:name/:commit')
     .get(function(req, res) {
-      var deployment = req.params.deployment;
+      var name = req.params.name;
       var commit = req.params.commit;
 
-      var deployDir = config.get('deployments')[deployment];
+      var deployment = _.find(config.get('deployments'), {"name": name});
+      var deployDir = _.has(deployment, 'path') && deployment.path;
 
       if (!deployDir) {
         res.json({
           status: 'error',
-          message: 'no deployment has been configured for: ' + deployment
+          message: 'no deployment has been configured for: ' + name
         });
-      }
-      else {
+      } else {
         util.deploy(deployDir, commit, outDir, repoPath)
           .then(function(deploy) {
             res.json(deploy);

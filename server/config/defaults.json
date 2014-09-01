@@ -5,5 +5,5 @@
   "outDir": "/tmp/drax-build/",
   "buildCommand": "npm run dist",
   "repoPath": "/path/to/repo",
-  "deployments": {}
+  "deployments": []
 }

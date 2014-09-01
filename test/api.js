@@ -26,10 +26,15 @@ var conf = {
   'buildCommand': 'mkdir -p .dist && cp -r ./* .dist',
   'NODE_ENV': 'test',
   'port': testPort,
-  'deployments': {
-    'test': deployDir + '/test',
-    'staging': deployDir + '/staging'
-  }
+  'deployments': [
+    {
+      "name": 'test',
+      "path": deployDir + '/test'
+    }, {
+      "name": 'staging',
+      "path": deployDir + '/staging'
+    }
+  ]
 };
 
 var server = require('../.dist/server')(conf);
