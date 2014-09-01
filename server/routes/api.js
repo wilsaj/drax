@@ -2,10 +2,11 @@
 
 var bodyParser = require('body-parser');
 var express = require('express');
-var util = require('../util');
+var Promise = require('bluebird');
 var _s  = require('underscore.string');
 var _ = require('lodash');
 
+var util = require('../util');
 
 // Open the repository in the current directory.
 
@@ -104,6 +105,19 @@ var router = function (config, io) {
             res.status(403).send(error.message);
           });
       }
+    });
+
+  router.route('/deployments')
+    .get(function(req, res) {
+      var configDeployments = config.get('deployments');
+
+      Promise.map(configDeployments, util.deploymentStatus)
+        .then(function (deployments) {
+          return res.json(deployments);
+        })
+        .catch(function(error) {
+          res.status(403).send(error.message);
+        });
     });
 
   router.route('/status/:commit')

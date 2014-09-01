@@ -6,9 +6,13 @@ var Promise = require('bluebird');
 var rimrafAsync = Promise.promisify(require('rimraf'));
 var execAsync = Promise.promisify(require('child_process').exec);
 var readdirAsync = Promise.promisify(require('fs').readdir);
+var readFileAsync = Promise.promisify(require('fs').readFile);
 var statAsync = Promise.promisify(require('fs').stat);
 var _s  = require('underscore.string');
+var _ = require('lodash');
 
+
+var draxDeployInfoFilename = '.drax-deploy-info';
 
 function git(subcommand, repoPath) {
   var options = {};
@@ -121,6 +125,22 @@ var util = {
           });
       });
   },
+  deploymentStatus: function deployStatus(deploymentConfig) {
+    var deployment = {
+      "name": deploymentConfig.name,
+      "commit": null
+    };
+
+    var deployInfoPath = path.join(deploymentConfig.path, draxDeployInfoFilename);
+    return readFileAsync(deployInfoPath)
+      .then(function (data) {
+        deployment.commit = data.toString().trim();
+        return deployment;
+      })
+      .catch(function (error) {
+        return deployment;
+      });
+  },
   deploy: function deploy(deployDir, commit, outDir, repoPath) {
     var builtDir = path.join(outDir, commit);
 
@@ -132,6 +152,7 @@ var util = {
               'rm -rf ' + deploySide,
               'mkdir -p ' + deploySide,
               'cp -r ' + builtDir + '/ ' + deploySide,
+              'echo "' + commit + '" > ' + deploySide + '/' + draxDeployInfoFilename,
               'rm -rf ' + deployDir,
               'mv ' + deploySide + ' ' + deployDir
             ].join(' && '))

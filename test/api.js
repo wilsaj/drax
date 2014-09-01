@@ -17,6 +17,7 @@ var outDirStartup = outDir + '-startup';
 
 var deployDir = path.join(__dirname, '.test-deploy');
 
+var deployInfoFilename = '.drax-deploy-info';
 
 var testPort = 7357;
 
@@ -396,6 +397,28 @@ describe('/api/v1/', function () {
 
         request(app)
           .get(apiPre + '/deploy/' + deploy + '/' + commit)
+          .expect(200, JSON.stringify(expected), done);
+      });
+    });
+  });
+
+  describe('/deployments', function() {
+    it('should return list of configured deployments and which commits are deployed to them', function (done) {
+      exec('git log -1 --format=format:%H another-branch', {cwd: repoPath}, function (err, stdout, stderr) {
+        var commit = stdout;
+
+        var expected = [
+          {
+            "name": 'test',
+            "commit": commit
+          }, {
+            "name": 'staging',
+            "commit": null
+          }
+        ];
+
+        request(app)
+          .get(apiPre + '/deployments/')
           .expect(200, JSON.stringify(expected), done);
       });
     });
