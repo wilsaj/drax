@@ -320,18 +320,20 @@ describe('/api/v1/', function () {
     it('should successfully deploy for built commits', function (done) {
       exec('git log -1 --format=format:%H master', {cwd: repoPath}, function (err, stdout, stderr) {
         var commit = stdout;
+        var deployName = 'test';
 
         request(app)
-          .get(apiPre + '/deploy/test/' + commit)
+          .get(apiPre + '/deploy/' + deployName + '/' + commit)
           .expect(200)
           .end(function(err, res){
             assert.equal(res.text, JSON.stringify({status: 'deployed'}));
 
-            watchFor(deployDir, 'test', function() {
-              var testPath = path.join(outDir, commit, 'hi.txt');
+            var testPath = path.join(deployDir, deployName, 'hi.txt');
 
+            watchFor(deployDir, 'test', function() {
               fs.readFile(testPath, function(err, data) {
                 assert.equal(data.toString(), 'hello\n');
+
                 done();
               });
             });
@@ -344,9 +346,10 @@ describe('/api/v1/', function () {
     it('should successfully deploy multiple times for different built commits', function (done) {
       exec('git log -1 --format=format:%H another-branch', {cwd: repoPath}, function (err, stdout, stderr) {
         var commit = stdout;
+        var deployName = 'test';
 
         request(app)
-          .get(apiPre + '/deploy/test/' + commit)
+          .get(apiPre + '/deploy/' + deployName + '/' + commit)
           .expect(200)
           .end(function(err, res){
             assert.equal(res.text, JSON.stringify({status: 'deployed'}));
