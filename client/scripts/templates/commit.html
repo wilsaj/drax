@@ -15,6 +15,9 @@
     <a class="btn btn-default" ng-disabled="commit.status !== 'built'" href="/api/v1/preview/{{commit.hash}}">
       <i class="fa fa-eye"></i>
     </a>
+    <button dropdown-menu="deployments" dropdown-item-label="name" dropdown-onchange="deploy(selected.name, commit.hash)" class="btn btn-default" ng-disabled="commit.status !== 'built'" ng-click="deploy()">
+      <i class="fa fa-rocket"></i>
+    </button>
   </div>
   <p>status: {{ commit.status }}</p>
   <p>{{ commit.hash }}</p>

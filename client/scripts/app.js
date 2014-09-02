@@ -1,3 +1,4 @@
 angular.module('draxApp', [
-  'btford.socket-io'
+  'btford.socket-io',
+  'ngDropdowns'
 ]);

@@ -13,6 +13,20 @@ angular.module('draxApp')
         });
     };
 
+    DataService.deploy = function deploy(name, commit) {
+      return $http.get(apiPre + '/deploy/' + name + '/' + commit)
+        .then(function (resp) {
+          return resp.data;
+        });
+    };
+
+    DataService.deployments = function deployments() {
+      return $http.get(apiPre + '/deployments')
+        .then(function (resp) {
+          return resp.data;
+        });
+    };
+
     DataService.getCommits = function getCommits() {
       return $http.get(apiPre + '/commits')
         .then(function (resp) {

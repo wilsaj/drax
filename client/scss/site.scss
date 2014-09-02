@@ -7,4 +7,27 @@
     h3 {
         margin-top: 0px;
     }
+
+    .wrap-dd-menu {
+        padding: 0;
+        width: 0px;
+
+        button {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            margin-left: -1px
+        }
+
+        .dropdown:after, .dropdown:before {
+            left: 25%;
+        }
+
+        ul {
+            margin-top: 10px;
+        }
+
+        .dropdown {
+            width: 200px;
+        }
+    }
 }

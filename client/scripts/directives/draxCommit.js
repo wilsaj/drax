@@ -5,7 +5,6 @@ angular.module('draxApp')
       restrict: 'A',
       templateUrl: 'commit.html',
       controller: function ($scope) {
-
         $scope.build = function () {
           DataService.build($scope.commit.hash)
             .then(function (status) {
