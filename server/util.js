@@ -87,6 +87,7 @@ var util = {
     var attrs = [
       ['%H', 'hash'],
       ['%d', 'branches'],
+      ['%at', 'timestamp'],
       ['%aN', 'authorName'],
       ['%ae', 'authorEmail'],
       ['%s', 'subject'],
@@ -111,6 +112,7 @@ var util = {
             .filter(function (branch) {
               return branch.length > 0;
             });
+
 
           return commit;
         });

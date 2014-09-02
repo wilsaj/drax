@@ -7,6 +7,7 @@ var path = require('path');
 var assert = require('assert');
 var async = require('async');
 var io = require('socket.io-client');
+var moment = require('moment');
 var request = require('supertest');
 var should = require('should');
 
@@ -285,6 +286,9 @@ describe('/api/v1/', function () {
             var commitTest = commitTests[index];
 
             assert.equal(commit.hash.length, 40);
+
+            var parsedDate = moment.unix(commit.timestamp);
+            assert(parsedDate.isValid());
 
             Object.keys(commitTest).forEach(function (key) {
               assert.deepEqual(commitTest[key], commit[key]);
