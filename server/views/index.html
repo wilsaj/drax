@@ -20,9 +20,7 @@
     <div class="container">
       <div class="row">
         <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-4">
-          <div ng-repeat="commit in commits">
-            <div drax-commit ng-model="commit"></div>
-          </div>
+          <div drax-commit-list ng-model="commits"></div>
         </div>
       </div>
     </div>
@@ -42,6 +40,7 @@
       <script type="text/javascript" src="scripts/templates.js"></script>
       <script type="text/javascript" src="scripts/controllers/draxCtrl.js"></script>
       <script type="text/javascript" src="scripts/directives/draxCommit.js"></script>
+      <script type="text/javascript" src="scripts/directives/draxCommitList.js"></script>
       <script type="text/javascript" src="scripts/services/DataService.js"></script>
       <script type="text/javascript" src="scripts/services/SocketService.js"></script>
     <!-- endbuild -->
