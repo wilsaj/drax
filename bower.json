@@ -7,6 +7,7 @@
     "angular": "~1.2.23",
     "bootstrap": "~3.2.0",
     "fontawesome": "~4.2.0",
-    "angular-socket-io": "~0.6.0"
+    "angular-socket-io": "~0.6.0",
+    "moment": "~2.8.2"
   }
 }

@@ -28,7 +28,7 @@
     "dojo": false,
 
     // Custom predefined globals.
-    "predef": ["_", "angular", "after", "afterEach", "before", "beforeEach", "describe", "it"],
+    "predef": ["_", "angular", "after", "afterEach", "before", "beforeEach", "describe", "it", "moment"],
 
     // Development
 

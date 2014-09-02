@@ -6,9 +6,7 @@ angular.module('draxApp')
 
     DataService.getCommits()
       .then(function (commits) {
-        _.forEach(commits, function(commit) {
-          $scope.commits[commit.hash] = commit;
-        });
+        $scope.commits = commits;
       });
 
     SocketService.on('build', function (message) {

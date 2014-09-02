@@ -16,7 +16,14 @@ angular.module('draxApp')
     DataService.getCommits = function getCommits() {
       return $http.get(apiPre + '/commits')
         .then(function (resp) {
-          return resp.data.commits;
+          var commits = {};
+
+          _.forEach(resp.data.commits, function(commit) {
+            commit.date = moment.unix(commit.timestamp);
+            commits[commit.hash] = commit;
+          });
+
+          return commits;
         });
     };
 
