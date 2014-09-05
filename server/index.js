@@ -12,6 +12,7 @@ var Server = function (options) {
 
   var server = require('http').Server(app);
   var io = require('socket.io')(server);
+  var watchman = require('./watchman')(io, config);
 
   // set up routes, mapping the .dist/client dir to be served as static content
   var staticDir = './client';
@@ -25,6 +26,8 @@ var Server = function (options) {
       callback = callback || function () {};
       port = port || config.get('port');
 
+      watchman.start();
+
       util.clearPartials(config.get('outDir'))
         .then(function () {
           server.listen(port, function () {
@@ -32,10 +35,10 @@ var Server = function (options) {
             callback();
           });
         });
-
     },
     stop: function(callback) {
       callback = callback || function () {};
+      watchman.stop();
       server.close(callback);
     }
   };

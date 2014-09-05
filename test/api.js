@@ -113,6 +113,45 @@ function watchFor(watchDir, watchFile, callback) {
 
 
 describe('/api/v1/', function () {
+  var commitTests = [
+    {
+      branches: ['another-branch'],
+      authorName: 'Testerina Testski',
+      authorEmail: 'testpower3726@aol.com',
+      subject: 'different things',
+      body: '',
+      status: 'built'
+    }, {
+      branches: ['some-branch'],
+      authorName: 'Testing Testerson',
+      authorEmail: 'testdude81@aol.com',
+      subject: 'some-branch commit pt. 2',
+      body: '',
+      status: 'not built'
+    }, {
+      branches: [],
+      authorName: 'Testerina Testski',
+      authorEmail: 'testpower3726@aol.com',
+      subject: 'some-branch commit',
+      body: '',
+      status: 'not built'
+    }, {
+      branches: [ 'HEAD', 'master' ],
+      authorName: 'Testerina Testski',
+      authorEmail: 'testpower3726@aol.com',
+      subject: 'changed',
+      body: 'I mean seriously.\n\nwe totally changed this\n',
+      status: 'built'
+    }, {
+      branches: [],
+      authorName: 'Testing Testerson',
+      authorEmail: 'testdude81@aol.com',
+      subject: 'initial commit',
+      body: 'starting off\n',
+      status: 'built'
+    }
+  ];
+
   before(function (done) {
     execSeries([
       'rm -rf ' + repoPath,
@@ -242,45 +281,6 @@ describe('/api/v1/', function () {
         .end(function(err, res){
           var commits = JSON.parse(res.text).commits;
           assert.equal(commits.length,  5);
-
-          var commitTests = [
-            {
-              branches: ['another-branch'],
-              authorName: 'Testerina Testski',
-              authorEmail: 'testpower3726@aol.com',
-              subject: 'different things',
-              body: '',
-              status: 'built'
-            }, {
-              branches: ['some-branch'],
-              authorName: 'Testing Testerson',
-              authorEmail: 'testdude81@aol.com',
-              subject: 'some-branch commit pt. 2',
-              body: '',
-              status: 'not built'
-            }, {
-              branches: [],
-              authorName: 'Testerina Testski',
-              authorEmail: 'testpower3726@aol.com',
-              subject: 'some-branch commit',
-              body: '',
-              status: 'not built'
-            }, {
-              branches: [ 'HEAD', 'master' ],
-              authorName: 'Testerina Testski',
-              authorEmail: 'testpower3726@aol.com',
-              subject: 'changed',
-              body: 'I mean seriously.\n\nwe totally changed this\n',
-              status: 'built'
-            }, {
-              branches: [],
-              authorName: 'Testing Testerson',
-              authorEmail: 'testdude81@aol.com',
-              subject: 'initial commit',
-              body: 'starting off\n',
-              status: 'built'
-            }
-          ];
 
           commits.forEach(function (commit, index) {
             var commitTest = commitTests[index];
@@ -510,11 +510,11 @@ describe('/api/v1/', function () {
 
 
   describe('websockets', function() {
-    before(function (done) {
+    beforeEach(function (done) {
       server.start(testPort, done);
     });
 
-    after(function (done) {
+    afterEach(function (done) {
       server.stop(done);
     });
 
@@ -551,7 +551,37 @@ describe('/api/v1/', function () {
         });
       });
     });
+
+    it('should emit update message when new commits come in', function (done) {
+      var otherRepoPath = repoPath + '-fetch-websockets-test';
+
+      execSeries([
+        'git clone ' + repoPath + ' ' + otherRepoPath,
+      ], {}, execSeries([
+          'echo "more new thing" >> update.txt',
+          'git add .',
+          'git commit -m "more new thing for us" --author="Testing Testerson <testdude81@aol.com>"'
+        ], {cwd: otherRepoPath}, function (err, stdout, stderr) {
+          setTimeout(function () {
+            var socket = io.connect("http://0.0.0.0:" + testPort, {'force new connection': true});
+            socket.on("connect", function (message) {
+              socket.on("update", function (message) {
+                assert.equal(message.commits.length, commitTests.length + 2);
+                socket.disconnect();
+                done();
+              });
+
+              execSeries([
+                'git remote add websockets-test ' + otherRepoPath,
+                'git fetch --all'
+              ], {cwd: repoPath}, function (err, stdout, stderr) {
+              });
+            });
+          }, 30);
+        }));
+    });
   });
+
 
   describe('start up', function() {
     it('should not start with any commits in a "building" state', function (done) {
