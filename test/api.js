@@ -485,13 +485,12 @@ describe('/api/v1/', function () {
           'git add .',
           'git commit -m "new thing is updated" --author="Testing Testerson <testdude81@aol.com>"',
         ], {cwd: otherRepoPath}, function (err, stdout, stderr) {
+          setTimeout(function () {
             exec('git log -1 --format=format:%H', {cwd: otherRepoPath}, function (err, stdout, stderr) {
               var commit = stdout;
               execSeries([
                 'git remote add origin ' + otherRepoPath,
               ], {cwd: repoPath}, function (err, stdout, stderr) {
-                var testPath = path.join(repoPath, 'update.txt');
-
                 request(app)
                   .get(apiPre + '/fetch')
                   .expect(200)
@@ -503,6 +502,7 @@ describe('/api/v1/', function () {
                   });
               });
             });
+          }, 30);
         })
       );
     });
