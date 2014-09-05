@@ -9,6 +9,7 @@
     "fontawesome": "~4.2.0",
     "angular-socket-io": "~0.6.0",
     "moment": "~2.8.2",
-    "angular-dropdowns": "~0.3.0"
+    "angular-dropdowns": "~0.3.0",
+    "lodash": "~2.4.1"
   }
 }
