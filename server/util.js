@@ -145,15 +145,16 @@ var util = {
   },
   deploy: function deploy(deployDir, commit, outDir, repoPath) {
     var builtDir = path.join(outDir, commit);
+    var deployDir = _s.rtrim(deployDir, '/');
 
     return statAsync(builtDir)
       .then(function (stats) {
-        var deploySide = _s.rtrim(deployDir, '/') + '.drax-deploying';
+        var deploySide = deployDir + '.drax-deploying';
 
         return execAsync([
               'rm -rf ' + deploySide,
               'mkdir -p ' + deploySide,
-              'cp -r ' + builtDir + '/ ' + deploySide,
+              'cp -r ' + builtDir + '/* ' + deploySide,
               'echo "' + commit + '" > ' + deploySide + '/' + draxDeployInfoFilename,
               'rm -rf ' + deployDir,
               'mv ' + deploySide + ' ' + deployDir
