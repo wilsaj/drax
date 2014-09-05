@@ -148,7 +148,7 @@ describe('/api/v1/', function () {
 
   after(function (done) {
     execSeries([
-      'rm -rf ' + repoPath,
+      'rm -rf ' + repoPath + '*',
       'rm -rf ' + deployDir,
       'rm -rf ' + outDir,
       'rm -rf ' + outDirSlow,
@@ -472,6 +472,39 @@ describe('/api/v1/', function () {
       request(app)
         .get(apiPre + '/status/' + commit)
         .expect(404, done);
+    });
+  });
+
+  describe('/fetch', function() {
+    it('should fetch recent changes', function (done) {
+      var otherRepoPath = repoPath + '-fetch-test';
+      execSeries([
+        'git clone ' + repoPath + ' ' + otherRepoPath,
+      ], {}, execSeries([
+          'echo "new thing" > update.txt',
+          'git add .',
+          'git commit -m "new thing is updated" --author="Testing Testerson <testdude81@aol.com>"',
+        ], {cwd: otherRepoPath}, function (err, stdout, stderr) {
+            exec('git log -1 --format=format:%H', {cwd: otherRepoPath}, function (err, stdout, stderr) {
+              var commit = stdout;
+              execSeries([
+                'git remote add origin ' + otherRepoPath,
+              ], {cwd: repoPath}, function (err, stdout, stderr) {
+                var testPath = path.join(repoPath, 'update.txt');
+
+                request(app)
+                  .get(apiPre + '/fetch')
+                  .expect(200)
+                  .end(function () {
+                    exec('git log -1 --format=format:%H ' + commit, {cwd: otherRepoPath}, function (err, stdout, stderr) {
+                      assert.equal(stdout, commit);
+                      done();
+                    });
+                  });
+              });
+            });
+        })
+      );
     });
   });
 

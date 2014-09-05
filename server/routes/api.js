@@ -120,6 +120,17 @@ var router = function (config, io) {
         });
     });
 
+  router.route('/fetch')
+    .get(function(req, res) {
+      util.fetch(repoPath)
+        .then(function() {
+          res.status(200).send('success');
+        })
+        .catch(function(error) {
+          res.status(403).send(error.message);
+        });
+    });
+
   router.route('/status/:commit')
     .get(function(req, res) {
       var commit = req.params.commit;

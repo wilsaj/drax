@@ -178,6 +178,9 @@ var util = {
         };
       });
   },
+  fetch: function fetch(repoPath) {
+    return git('fetch --all', repoPath);
+  },
   hashFor: function hashFor(name, repoPath) {
     return execAsync('git log --format=format:%H -1 ' + name, {cwd: repoPath})
       .then(function (output) {
