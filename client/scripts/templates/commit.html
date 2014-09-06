@@ -1,6 +1,5 @@
 <div class="commit">
-  <h3>commit</h3>
-  <div class="btn-group">
+  <div class="commit-controls btn-group pull-right">
     <button class="btn btn-default" ng-click="build()">
       <span ng-if="commit.status === 'not built'">
         <i class="fa fa-wrench"></i>
@@ -19,8 +18,8 @@
       <i class="fa fa-rocket"></i>
     </button>
   </div>
+  <div class="commit-hash">{{commit.hash}}</div>
   <p>status: {{ commit.status }}</p>
-  <p>{{ commit.hash }}</p>
   <p>{{ commit.subject }}</p>
   <p>{{ commit.body }}</p>
 </div>

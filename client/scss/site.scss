@@ -4,8 +4,14 @@
     border: 1px solid #ccc;
     background-color: #E4EBEA;
 
-    h3 {
-        margin-top: 0px;
+    .commit-controls {
+        padding-right: 40px;
+    }
+
+    .commit-hash {
+      height: 2em;
+      font-weight: bold;
+      font-size: 1.04em;
     }
 
     .wrap-dd-menu {
@@ -30,4 +36,5 @@
             width: 200px;
         }
     }
+
 }
