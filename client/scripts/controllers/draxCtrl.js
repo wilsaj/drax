@@ -11,6 +11,10 @@ angular.module('draxApp')
       }
     };
 
+    $scope.fetch = function fetch() {
+      DataService.fetch();
+    };
+
     DataService.getCommits()
       .then(function (commits) {
         $scope.commits = commits;

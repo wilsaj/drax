@@ -18,6 +18,19 @@
 
   </head>
   <body ng-controller="draxCtrl">
+    <nav class="navbar navbar-default" role="navigation">
+      <div class="container-fluid">
+        <div class="nav navbar-nav navbar-brand">
+          Drax the Deployer
+        </div>
+        <div class="nav navbar-form navbar-right">
+          <button type="button" class="btn btn-default" ng-click="fetch()">
+            <i class="fa fa-refresh"></i>
+            fetch updates
+          </button>
+        </div>
+      </div>
+    </nav>
     <div class="container">
       <div class="row">
         <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-4">
