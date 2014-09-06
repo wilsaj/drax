@@ -6,6 +6,17 @@ angular.module('draxApp')
 
     var DataService = {};
 
+    function processCommits (commitList) {
+      var commits = {};
+
+      _.forEach(commitList, function(commit) {
+        commit.date = moment.unix(commit.timestamp);
+        commits[commit.hash] = commit;
+      });
+
+      return commits;
+    }
+
     DataService.build = function build(commit) {
       return $http.get(apiPre + '/build/' + commit)
         .then(function (resp) {
@@ -37,17 +48,11 @@ angular.module('draxApp')
     DataService.getCommits = function getCommits() {
       return $http.get(apiPre + '/commits')
         .then(function (resp) {
-          var commits = {};
-
-          _.forEach(resp.data.commits, function(commit) {
-            commit.date = moment.unix(commit.timestamp);
-            commits[commit.hash] = commit;
-          });
-
-          return commits;
+          return processCommits(resp.data.commits);
         });
     };
 
+    DataService.processCommits = processCommits;
 
     return DataService;
   });

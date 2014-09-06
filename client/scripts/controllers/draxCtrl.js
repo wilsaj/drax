@@ -29,4 +29,8 @@ angular.module('draxApp')
       var commit = $scope.commits[message.commit];
       commit.status = message.status;
     });
+
+    SocketService.on('update', function (message) {
+      $scope.commits = DataService.processCommits(message.commits);
+    });
   });
