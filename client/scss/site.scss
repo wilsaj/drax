@@ -13,9 +13,15 @@
     }
 
     .commit-hash {
-      height: 2em;
       font-weight: bold;
       font-size: 1.04em;
+    }
+
+    .commit-date {
+        font-size: 0.9em;
+        color: #777;
+        margin-left: 4px;
+        font-style: italic;
     }
 
     .wrap-dd-menu {
