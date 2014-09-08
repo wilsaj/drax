@@ -28,10 +28,16 @@ angular.module('draxApp')
     SocketService.on('build', function (message) {
       var commit = $scope.commits[message.commit];
       commit.status = message.status;
+
+      // XXX: hacks
+      DataService.getCommits();
     });
 
     SocketService.on('deploy', function (message) {
       $scope.deployments = message.deployments;
+
+      // XXX: hacks
+      DataService.deployments();
     });
 
     SocketService.on('update', function (message) {
