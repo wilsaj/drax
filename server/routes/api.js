@@ -88,7 +88,8 @@ var router = function (config, io) {
       var name = req.params.name;
       var commit = req.params.commit;
 
-      var deployment = _.find(config.get('deployments'), {"name": name});
+      var deploymentConfig = config.get('deployments');
+      var deployment = _.find(deploymentConfig, {"name": name});
       var deployDir = _.has(deployment, 'path') && deployment.path;
 
       if (!deployDir) {
@@ -97,7 +98,7 @@ var router = function (config, io) {
           message: 'no deployment has been configured for: ' + name
         });
       } else {
-        util.deploy(deployDir, commit, outDir, repoPath)
+        util.deploy(deployDir, commit, outDir, repoPath, deploymentConfig, io)
           .then(function(deploy) {
             res.json(deploy);
           })
@@ -109,10 +110,9 @@ var router = function (config, io) {
 
   router.route('/deployments')
     .get(function(req, res) {
-      var configDeployments = config.get('deployments');
-
-      Promise.map(configDeployments, util.deploymentStatus)
-        .then(function (deployments) {
+      var deploymentsConfig = config.get('deployments');
+      util.deployments(deploymentsConfig)
+        .then(function(deployments) {
           return res.json(deployments);
         })
         .catch(function(error) {

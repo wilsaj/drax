@@ -127,6 +127,9 @@ var util = {
           });
       });
   },
+  deployments: function deployments(deploymentConfig) {
+    return Promise.map(deploymentConfig, util.deploymentStatus);
+  },
   deploymentStatus: function deployStatus(deploymentConfig) {
     var deployment = {
       "name": deploymentConfig.name,
@@ -143,7 +146,7 @@ var util = {
         return deployment;
       });
   },
-  deploy: function deploy(deployDir, commit, outDir, repoPath) {
+  deploy: function deploy(deployDir, commit, outDir, repoPath, deploymentConfig, io) {
     var builtDir = path.join(outDir, commit);
     var deployDir = _s.rtrim(deployDir, '/');
 
@@ -160,6 +163,13 @@ var util = {
               'mv ' + deploySide + ' ' + deployDir
             ].join(' && '))
           .then(function () {
+            util.deployments(deploymentConfig)
+              .then(function (deployments) {
+                io.emit('deploy', {
+                  deployments: deployments
+                });
+              });
+
             return {
               status: 'deployed'
             };

@@ -584,6 +584,10 @@ describe('/api/v1/', function () {
           }, 500);
         }));
     });
+
+    it.skip('should emit deployments message on deploy', function (done) {
+      done();
+    });
   });
 
 
