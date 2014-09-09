@@ -44,6 +44,7 @@
     "rimraf": "^2.2.8",
     "socket.io": "^1.0.6",
     "socket.io-client": "^1.0.6",
+    "tape": "^2.14.0",
     "underscore.string": "^2.3.3"
   }
 }
