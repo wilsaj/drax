@@ -11,12 +11,14 @@ var moment = require('moment');
 var request = require('supertest');
 var should = require('should');
 
-var repoPath = path.join(__dirname, '.test-repo');
-var outDir = path.join(__dirname, '.test-out');
+var testDir = path.join(__dirname, '.test-tmp');
+
+var repoPath = path.join(testDir, 'repo');
+var outDir = path.join(testDir, 'out');
 var outDirSlow = outDir + '-slow';
 var outDirStartup = outDir + '-startup';
 
-var deployDir = path.join(__dirname, '.test-deploy');
+var deployDir = path.join(testDir, 'deploy');
 
 var deployInfoFilename = '.drax-deploy-info';
 
@@ -187,11 +189,7 @@ describe('/api/v1/', function () {
 
   after(function (done) {
     execSeries([
-      'rm -rf ' + repoPath + '*',
-      'rm -rf ' + deployDir,
-      'rm -rf ' + outDir,
-      'rm -rf ' + outDirSlow,
-      'rm -rf ' + outDirStartup
+      'rm -rf ' + testDir
     ], {}, done);
   });
 
