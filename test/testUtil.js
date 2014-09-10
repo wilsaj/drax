@@ -15,6 +15,46 @@ var testDir = path.join(__dirname, '.test-tmp');
 var baseRepoPath = path.join(testDir, 'base-repo');
 
 
+var baseCommits = [
+  {
+    branches: ['another-branch'],
+    authorName: 'Testerina Testski',
+    authorEmail: 'testpower3726@aol.com',
+    subject: 'different things',
+    body: '',
+    status: 'not built'
+  }, {
+    branches: ['some-branch'],
+    authorName: 'Testing Testerson',
+    authorEmail: 'testdude81@aol.com',
+    subject: 'some-branch commit pt. 2',
+    body: '',
+    status: 'not built'
+  }, {
+    branches: [],
+    authorName: 'Testerina Testski',
+    authorEmail: 'testpower3726@aol.com',
+    subject: 'some-branch commit',
+    body: '',
+    status: 'not built'
+  }, {
+    branches: [ 'HEAD', 'master' ],
+    authorName: 'Testerina Testski',
+    authorEmail: 'testpower3726@aol.com',
+    subject: 'changed',
+    body: 'I mean seriously.\n\nwe totally changed this\n',
+    status: 'not built'
+  }, {
+    branches: [],
+    authorName: 'Testing Testerson',
+    authorEmail: 'testdude81@aol.com',
+    subject: 'initial commit',
+    body: 'starting off\n',
+    status: 'not built'
+  }
+];
+
+
 function cleanDir(cb) { 
   execSeries([
     'rm -rf ' + testDir
@@ -136,6 +176,7 @@ function watchFor(watchDir, watchFile, callback) {
 }
 
 module.exports = {
+  baseCommits: baseCommits,
   cleanDir: cleanDir,
   execSeries: execSeries,
   makeConfig: makeConfig,
