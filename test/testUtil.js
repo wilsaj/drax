@@ -108,11 +108,12 @@ function makeBaseRepo() {
 
 function makeConfig(dir) {
   var repoPath = path.join(dir, 'repo');
-  var deployDir = path.join(repoPath, 'deploy');
+  var deployDir = path.join(dir, 'deploy');
 
   return {
     'testDir': dir,
     'repoPath': path.join(dir, 'repo'),
+    'deployDir': deployDir,
     'outDir': path.join(dir, 'out'),
     'buildCommand': 'mkdir -p .dist && cp -r ./* .dist',
     'NODE_ENV': 'test',
@@ -142,11 +143,13 @@ function makeTestRepo(testRepoPath) {
 function setup(config, t) {
   var testRepoPath = config.repoPath;
   var outDir = config.outDir;
+  var deployDir = config.deployDir;
 
   t.test('setup', function(setupTest) {
     Promise.all([
       makeTestRepo(testRepoPath),
-      execAsync('mkdir -p ' + outDir)
+      execAsync('mkdir -p ' + outDir),
+      execAsync('mkdir -p ' + deployDir)
     ])
       .then(function () {
         setupTest.end();
