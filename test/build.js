@@ -207,5 +207,32 @@ test('build tests', function (t) {
   });
 
 
+  t.test('should return list of configured deployments and which commits are deployed to them', function (t2) {
+    t2.plan(2);
+
+    exec('git log -1 --format=format:%H another-branch', {cwd: repoPath}, function (err, stdout, stderr) {
+      var commit = stdout;
+
+      var expected = [
+        {
+          "name": 'test',
+          "commit": commit
+        }, {
+          "name": 'staging',
+          "commit": null
+        }
+      ];
+
+      request(app)
+        .get(apiPre + '/deployments/')
+        .end(function(err, res) {
+          t2.equal(200, res.status);
+          t2.equal(res.text, JSON.stringify(expected));
+        });
+    });
+  });
+
+
+
   draxTest.teardown(config, t);
 });
