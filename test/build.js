@@ -234,5 +234,84 @@ test('build tests', function (t) {
 
 
 
+  t.test('should return "built" status for built commits', function (t2) {
+    t2.plan(2);
+    exec('git log -1 --format=format:%H master', {cwd: repoPath}, function (err, stdout, stderr) {
+      var commit = stdout;
+
+      request(app)
+        .get(apiPre + '/status/' + commit)
+        .end(function(err, res) {
+          t2.equal(200, res.status);
+          t2.equal(res.text, JSON.stringify({status: 'built'}));
+        });
+    });
+  });
+
+
+  t.test('should return "not built" status for non-built commits', function (t2) {
+    t2.plan(2);
+    exec('git log -1 --skip 1 --format=format:%H some-branch', {cwd: repoPath}, function (err, stdout, stderr) {
+      var commit = stdout;
+
+      request(app)
+        .get(apiPre + '/status/' + commit)
+        .end(function(err, res) {
+          t2.equal(200, res.status);
+          t2.equal(res.text, JSON.stringify({status: 'not built'}));
+        });
+    });
+  });
+
+
+  t.test('should return 404 for non-existant commits', function (t2) {
+    t2.plan(1);
+    var commit = '15a52b49cfb3217a64b77b755bc3a10e6c3f2fc8';
+
+    request(app)
+      .get(apiPre + '/status/' + commit)
+      .end(function(err, res) {
+        t2.equal(404, res.status);
+      });
+  });
+
+
   draxTest.teardown(config, t);
+});
+
+
+test('slow build tests', function (t) {
+  var dir = path.join(draxTest.testDir, 'slow-build');
+  var config = draxTest.makeConfig(dir, {
+    'buildCommand': 'sleep 0.2 && mkdir -p .dist && cp -r ./* .dist'
+  });
+  var app = server(config).app;
+
+  var repoPath = config.repoPath;
+  var outDir = config.outDir;
+  var deployDir = config.deployDir;
+
+  draxTest.setup(config, t);
+
+  t.test('should return "building" status for builds in process', function (t2) {
+    t2.plan(2);
+    exec('git log -1 --skip 1 --format=format:%H some-branch', {cwd: repoPath}, function (err, stdout, stderr) {
+      var commit = stdout;
+
+      request(app)
+        .get(apiPre + '/build/' + commit)
+        .end(function (err, res) {
+          setTimeout(function () {
+            request(app)
+              .get(apiPre + '/status/' + commit)
+              .end(function(err, res) {
+                t2.equal(200, res.status);
+                t2.equal(res.text, JSON.stringify({status: 'building'}));
+              });
+          }, 10);
+        });
+    });
+  });
+
+  draxTest.teardown(config, t, 300);
 });

@@ -5,6 +5,7 @@ var exec = require('child_process').exec;
 var fs = require('fs');
 var path = require('path');
 
+var _ = require('lodash');
 var Promise = require('bluebird');
 var execAsync = Promise.promisify(exec);
 
@@ -14,6 +15,7 @@ var testDir = path.join(__dirname, '.test-tmp');
 
 var baseRepoPath = path.join(testDir, 'base-repo');
 
+var runningTests = 0;
 
 var baseCommits = [
   {
@@ -55,7 +57,7 @@ var baseCommits = [
 ];
 
 
-function cleanDir(cb) { 
+function cleanDir(cb) {
   execSeries([
     'rm -rf ' + testDir
   ], {}, cb);
@@ -106,11 +108,13 @@ function makeBaseRepo() {
 }
 
 
-function makeConfig(dir) {
+function makeConfig(dir, overrides) {
+  overrides = overrides || {};
+
   var repoPath = path.join(dir, 'repo');
   var deployDir = path.join(dir, 'deploy');
 
-  return {
+  var defaults = {
     'testDir': dir,
     'repoPath': path.join(dir, 'repo'),
     'deployDir': deployDir,
@@ -128,6 +132,8 @@ function makeConfig(dir) {
       }
     ]
   };
+
+  return _.assign(defaults, overrides);
 }
 
 function makeTestRepo(testRepoPath) {
@@ -146,6 +152,8 @@ function setup(config, t) {
   var deployDir = config.deployDir;
 
   t.test('setup', function(setupTest) {
+    runningTests++;
+
     Promise.all([
       makeTestRepo(testRepoPath),
       execAsync('mkdir -p ' + outDir),
@@ -157,15 +165,17 @@ function setup(config, t) {
   });
 }
 
-function teardown(config, t) {
+function teardown(config, t, timeout) {
+  timeout = timeout || 0;
   t.test('teardown', function(teardownTest) {
-    execAsync('rm -rf ' + config.testDir)
-      .then(function () {
-        teardownTest.end();
-      });
+    setTimeout(function () {
+      execAsync('rm -rf ' + config.testDir)
+        .then(function () {
+          teardownTest.end();
+        });
+    }, timeout);
   });
 }
-
 
 function watchFor(watchDir, watchFile, callback) {
   var watcher = fs.watch(watchDir, {interval: 10}, function(event, filename) {
