@@ -1,6 +1,5 @@
 'use strict';
 
-var bodyParser = require('body-parser');
 var express = require('express');
 var Promise = require('bluebird');
 var _s  = require('underscore.string');
@@ -20,7 +19,6 @@ var router = function (config, io) {
   var router = express.Router();
 
   // parse application/json and application/x-www-form-urlencoded
-  router.use(bodyParser());
 
   router.route(/^\/build\/(.*)/)
     .get(function(req, res) {
