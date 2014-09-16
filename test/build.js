@@ -25,7 +25,7 @@ test('build tests', function (t) {
   draxTest.setup(config, t);
 
   t.test('building should work for branch names', function (t2) {
-    t2.plan(2);
+    t2.plan(3);
 
     var buildName = 'master';
 
@@ -34,8 +34,8 @@ test('build tests', function (t) {
 
       request(app)
         .get(apiPre + '/build/' + buildName)
-        .expect(200)
         .end(function(err, res){
+          t2.equal(res.status, 200);
           t2.equal(res.text, JSON.stringify({status: 'building'}));
 
           var testPath = path.join(outDir, commit, 'hi.txt');
@@ -51,15 +51,15 @@ test('build tests', function (t) {
 
 
   t.test('building should work for full commit hashes', function (t2) {
-    t2.plan(2);
+    t2.plan(3);
 
     exec('git log -1 --all --skip 4 --topo-order --format=format:%H', {cwd: repoPath}, function (err, stdout, stderr) {
       var commit = stdout;
 
       request(app)
         .get(apiPre + '/build/' + commit)
-        .expect(200)
         .end(function(err, res){
+          t2.equal(res.status, 200);
           t2.equal(res.text, JSON.stringify({status: 'building'}));
 
           draxTest.watchFor(outDir, commit, function() {
@@ -75,7 +75,7 @@ test('build tests', function (t) {
 
 
   t.test('building should work for partial commit hashes', function (t2) {
-    t2.plan(2);
+    t2.plan(3);
 
     exec('git log -1 --format=format:%H another-branch', {cwd: repoPath}, function (err, stdout, stderr) {
       var commit = stdout;
@@ -83,8 +83,8 @@ test('build tests', function (t) {
 
       request(app)
         .get(apiPre + '/build/' + partialCommit)
-        .expect(200)
         .end(function(err, res){
+          t2.equal(res.status, 200);
           t2.equal(res.text, JSON.stringify({status: 'building'}));
 
           draxTest.watchFor(outDir, commit, function() {
@@ -100,15 +100,15 @@ test('build tests', function (t) {
 
 
   t.test('preview should work for built commits', function (t2) {
-    t2.plan(1);
+    t2.plan(2);
 
     exec('git log -1 --format=format:%H master', {cwd: repoPath}, function (err, stdout, stderr) {
       var commit = stdout;
 
       request(app)
         .get(apiPre + '/preview/' + commit + '/hi.txt')
-        .expect(200)
         .end(function(err, res){
+          t2.equal(res.status, 200);
           t2.equal(res.text, 'hello\n');
         });
     });
@@ -271,7 +271,7 @@ test('build tests', function (t) {
     request(app)
       .get(apiPre + '/status/' + commit)
       .end(function(err, res) {
-        t2.equal(404, res.status);
+        t2.equal(res.status, 404);
       });
   });
 
@@ -305,7 +305,7 @@ test('slow build tests', function (t) {
             request(app)
               .get(apiPre + '/status/' + commit)
               .end(function(err, res) {
-                t2.equal(200, res.status);
+                t2.equal(res.status, 200);
                 t2.equal(res.text, JSON.stringify({status: 'building'}));
               });
           }, 10);
