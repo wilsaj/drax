@@ -4,6 +4,7 @@ var exec = require('child_process').exec;
 var fs = require('fs');
 var path = require('path');
 
+var io = require('socket.io-client');
 var request = require('supertest');
 var test = require('tape');
 
@@ -320,15 +321,13 @@ test('build tests', function (t) {
 
 
 test('slow build tests', function (t) {
-  var dir = path.join(draxTest.testDir, 'slow-build');
+  var dir = path.join(draxTest.testDir, 'build-slow');
   var config = draxTest.makeConfig(dir, {
     'buildCommand': 'sleep 0.2 && mkdir -p .dist && cp -r ./* .dist'
   });
   var app = server(config).app;
 
   var repoPath = config.repoPath;
-  var outDir = config.outDir;
-  var deployDir = config.deployDir;
 
   draxTest.setup(config, t);
 
@@ -374,4 +373,59 @@ test('slow build tests', function (t) {
 
 
   draxTest.teardown(config, t, 300);
+});
+
+
+test('websockets build tests', function (t) {
+  var dir = path.join(draxTest.testDir, 'build-websockets');
+  var testPort = 6459;
+  var config = draxTest.makeConfig(dir, {
+    'buildCommand': 'mkdir -p .dist && cp -r ./* .dist',
+    'port': testPort
+  });
+  var testServer  = server(config);
+  var repoPath = config.repoPath;
+
+  draxTest.setup(config, t, testServer);
+
+  t.test('/build should emit messages at start and end of build', function (t2) {
+    t2.plan(2);
+
+    exec('git log -1 --all --skip 4 --topo-order --format=format:%H', {cwd: repoPath}, function (err, stdout, stderr) {
+      var commit = stdout;
+
+      var socket = io.connect("http://0.0.0.0:" + testPort);
+
+      var expected = [
+        {
+          commit: commit,
+          status: "building"
+        }, {
+          commit: commit,
+          status: "built"
+        }
+      ];
+
+      var processMessage = draxTest.expectSocketMessages(t2, expected, function () {
+        socket.disconnect();
+      });
+
+      socket.on("connect", function () {
+        socket.on("build", function (message) {
+          processMessage(message);
+        });
+
+        request(testServer.app)
+          .get(apiPre + '/build/' + commit)
+          .end(function () {});
+      });
+    });
+  });
+
+
+  t.skip('should emit deployments message on deploy', function (t2) {
+  });
+
+
+  draxTest.teardown(config, t, 300, testServer);
 });

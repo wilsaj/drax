@@ -72,6 +72,23 @@ function execSeries(commands, opts) {
   return execAsync(commands.join(' && '), opts);
 }
 
+// helper for testing websocket messages; returns a function to call with the
+// incoming websocket message as an argument
+//   expected is an array of message objects in the order that they are expected
+//   callback will be called after the last expected message comes in
+function expectSocketMessages(t, expected, callback) {
+  var i = 0;
+
+  return function processMessage(message) {
+    var expectedMessage = expected[i];
+    t.deepEqual(expectedMessage, message);
+    i += 1;
+
+    if (i === expected.length) {
+      callback();
+    }
+  };
+}
 
 function makeBaseRepo() {
   return execSeries([
@@ -146,10 +163,21 @@ function makeTestRepo(testRepoPath) {
     });
 }
 
-function setup(config, t) {
+function setup(config, t, server) {
   var testRepoPath = config.repoPath;
   var outDir = config.outDir;
   var deployDir = config.deployDir;
+
+  function startServer() {
+    return new Promise(function (resolve, reject) {
+      if (server) {
+        server.start(config.port, resolve);
+      }
+      else {
+        resolve();
+      }
+    });
+  }
 
   t.test('setup', function(setupTest) {
     runningTests++;
@@ -160,16 +188,34 @@ function setup(config, t) {
       execAsync('mkdir -p ' + deployDir)
     ])
       .then(function () {
-        setupTest.end();
+        startServer()
+          .then(function () {
+            setupTest.end();
+          });
       });
   });
 }
 
-function teardown(config, t, timeout) {
+function teardown(config, t, timeout, server) {
   timeout = timeout || 0;
+
+  function stopServer() {
+    return new Promise(function (resolve, reject) {
+      if (server) {
+        server.stop(resolve);
+      }
+      else {
+        resolve();
+      }
+    });
+  }
+
   t.test('teardown', function(teardownTest) {
     setTimeout(function () {
-      execAsync('rm -rf ' + config.testDir)
+      Promise.all([
+        execAsync('rm -rf ' + config.testDir),
+        stopServer()
+      ])
         .then(function () {
           teardownTest.end();
         });
@@ -192,6 +238,7 @@ module.exports = {
   baseCommits: baseCommits,
   cleanDir: cleanDir,
   execSeries: execSeries,
+  expectSocketMessages: expectSocketMessages,
   makeConfig: makeConfig,
   makeTestRepo: makeTestRepo,
   setup: setup,
