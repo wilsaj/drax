@@ -15,7 +15,7 @@ var apiPre = '/api/v1/';
 
 
 test('commit tests', function (t) {
-  var dir = path.join(draxTest.testDir, 'build');
+  var dir = path.join(draxTest.testDir, 'commits');
   var config = draxTest.makeConfig(dir);
   var app = server(config).app;
 
