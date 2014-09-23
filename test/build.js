@@ -146,19 +146,19 @@ test('build tests', function (t) {
       var commit = stdout;
       var deployName = 'test';
 
+      draxTest.watchFor(deployDir, 'test', function() {
+        var testPath = path.join(outDir, commit, 'hi.txt');
+
+        fs.readFile(testPath, function(err, data) {
+          t2.equal(data.toString(), 'hello\nexciting and different things\n');
+        });
+      });
+
       request(app)
         .get(apiPre + '/deploy/' + deployName + '/' + commit)
         .end(function(err, res){
           t2.equal(200, res.status);
           t2.equal(res.text, JSON.stringify({status: 'deployed'}));
-
-          draxTest.watchFor(deployDir, 'test', function() {
-            var testPath = path.join(outDir, commit, 'hi.txt');
-
-            fs.readFile(testPath, function(err, data) {
-              t2.equal(data.toString(), 'hello\nexciting and different things\n');
-            });
-          });
         });
     });
   });
