@@ -11,8 +11,9 @@ var statAsync = Promise.promisify(require('fs').stat);
 var _s  = require('underscore.string');
 var _ = require('lodash');
 
-
 var draxDeployInfoFilename = '.drax-deploy-info';
+
+
 
 function git(subcommand, repoPath) {
   var options = {};
@@ -54,7 +55,12 @@ var util = {
         return git('checkout ' + commit, buildPath);
       })
       .then(function() {
-        return execAsync('mkdir -p ' + outDir + ' && ' + buildCommand + ' && rm -rf ' + outPath + ' && mv ' + distPath + ' ' + outPath + ' && rm -rf ' + buildPath, {cwd: buildPath});
+        return execAsync(
+          'mkdir -p ' + outDir + ' && ' + buildCommand + ' && rm -rf ' + outPath + ' && mv ' + distPath + ' ' + outPath + ' && rm -rf ' + buildPath,
+          {cwd: buildPath}
+        ).catch(function (error) {
+          console.log("error occurred during build: " + error.message);
+        });
       });
   },
   clearPartials: function clearPartials(outDir) {
