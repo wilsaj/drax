@@ -376,6 +376,62 @@ test('slow build tests', function (t) {
 });
 
 
+test('start up build tests', function (t) {
+  var dir = path.join(draxTest.testDir, 'build-startup');
+  var testPort = 6459;
+  var config = draxTest.makeConfig(dir, {
+    'buildCommand': 'sleep 0.2 && mkdir -p INGORE_THIS_ERROR.dist && cp -r ./* .dist',
+    'port': testPort
+  });
+  var testServer = server(config);
+
+  var repoPath = config.repoPath;
+
+  draxTest.setup(config, t);
+
+  t.test('should not start with any commits in a "building" state', function (t2) {
+    t2.plan(4);
+
+    exec('git log -1 --all --skip 4 --topo-order --format=format:%H', {cwd: repoPath}, function (err, stdout, stderr) {
+      var commit = stdout;
+
+      testServer.start(testPort, function () {
+
+        // request a build
+        request(testServer.app)
+          .get(apiPre + '/build/' + commit)
+          .end(function (err, res) {
+            t2.equal(res.status, 200);
+            t2.equal(res.text, JSON.stringify({status: 'building'}));
+
+            // allow some time for the build to start
+            setTimeout(function () {
+              // stop testServer
+              testServer.stop(function () {
+                // start testServer up again and make sure status is reset to "not built"
+                setTimeout(function () {
+                  testServer.start(testPort, function () {
+                    request(testServer.app)
+                      .get(apiPre + '/status/' + commit)
+                      .end(function(err, res) {
+                        t2.equal(res.status, 200);
+                        t2.equal(res.text, JSON.stringify({status: 'not built'}));
+                        testServer.stop();
+                      });
+                  });
+                }, 50);
+              });
+            }, 50);
+          });
+      });
+    });
+  });
+
+  draxTest.teardown(config, t);
+});
+
+
+
 test('websockets build tests', function (t) {
   var dir = path.join(draxTest.testDir, 'build-websockets');
   var testPort = 6459;
