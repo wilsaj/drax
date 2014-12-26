@@ -1,5 +1,6 @@
 'use strict';
 
+var bodyParser = require('body-parser')
 var express = require('express');
 var Promise = require('bluebird');
 var _s  = require('underscore.string');
@@ -69,8 +70,8 @@ var router = function (config, io) {
       });
 
   router.route('/commits')
-    .get(function(req, res) {
-      util.commits(repoPath, outDir)
+    .get(bodyParser(), function(req, res) {
+      util.commits(repoPath, outDir, req.body.limit)
         .then(function(commits) {
           res.json({
             'commits': commits

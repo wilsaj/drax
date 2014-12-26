@@ -50,5 +50,31 @@ test('commit tests', function (t) {
       });
   });
 
+  t.test('GET should respect limit, if set', function (t2) {
+    t2.plan(1 + 2 * 8);
+
+    request(app)
+      .get(apiPre + '/commits')
+      .send({limit: 2})
+      .expect(200)
+      .end(function(err, res){
+        var commits = JSON.parse(res.text).commits;
+        t2.equal(commits.length,  2);
+
+        commits.forEach(function (commit, index) {
+          var commitTest = draxTest.baseCommits[index];
+
+          t2.equal(commit.hash.length, 40);
+
+          var parsedDate = moment.unix(commit.timestamp);
+          t2.assert(parsedDate.isValid());
+
+          Object.keys(commitTest).forEach(function (key) {
+            t2.deepEqual(commitTest[key], commit[key]);
+          });
+        });
+      });
+  });
+
   draxTest.teardown(config, t);
 });

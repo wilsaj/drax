@@ -13,8 +13,6 @@ var _ = require('lodash');
 
 var draxDeployInfoFilename = '.drax-deploy-info';
 
-
-
 function git(subcommand, repoPath) {
   var options = {};
 
@@ -82,10 +80,11 @@ var util = {
   clone: function clone(url, repoPath) {
     return git('clone ' + url + ' ' + repoPath);
   },
-  commits: function commits(repoPath, outDir) {
+  commits: function commits(repoPath, outDir, limit) {
     // separator that won't naturally occur in any part of commit log
     var propertySep = '::-PROPERTYSEP-::';
     var commitSep = '::-COMMITSEP-::';
+    limit = limit || 50;
 
     // list of attributes to pull out of commit long, in format:
     //   [formatStringPlaceholder, name]
@@ -101,7 +100,7 @@ var util = {
     ];
     var formatStr = attrs.map(function(attr) {return attr[0];}).join(propertySep) + commitSep;
 
-    return git('log --all --topo-order --format=format:' + formatStr, repoPath)
+    return git('log --all --topo-order --format=format:' + formatStr + ' --max-count=' + limit, repoPath)
       .then(function(output) {
         output = output.slice(0, -1 * commitSep.length);
         var commitStrs = output.split(commitSep + '\n');
