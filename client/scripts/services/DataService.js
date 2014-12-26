@@ -38,15 +38,15 @@ angular.module('draxApp')
         });
     };
 
-    DataService.fetch = function fetch () {
+    DataService.fetch = function fetch() {
       return $http.get(apiPre + '/fetch')
         .then(function (resp) {
           return resp.data;
         });
     };
 
-    DataService.getCommits = function getCommits() {
-      return $http.get(apiPre + '/commits')
+    DataService.getCommits = function getCommits(limit) {
+      return $http.get(apiPre + '/commits', {params: {limit: limit}})
         .then(function (resp) {
           return processCommits(resp.data.commits);
         });

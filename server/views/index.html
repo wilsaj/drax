@@ -29,7 +29,7 @@
       <div class="row">
         <div class="col-xs-12">
           <button type="button" class="fetch-button center-block btn btn-default" ng-click="fetch()">
-            <i class="fa fa-refresh"></i>
+            <i class="fa fa-arrow-up"></i>
             fetch updates
           </button>
         </div>
@@ -37,6 +37,14 @@
       <div class="row">
         <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
           <div drax-commit-list ng-model="commits"></div>
+        </div>
+      </div>
+      <div class="row" ng-show="moreCommitsAvailable">
+        <div class="col-xs-12">
+          <button type="button" class="fetch-button center-block btn btn-default" ng-click="moreCommits()">
+            <i class="fa fa-arrow-down"></i>
+            more commits
+          </button>
         </div>
       </div>
     </div>

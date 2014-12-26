@@ -4,6 +4,7 @@ angular.module('draxApp')
 
     $scope.commits = {};
     $scope.deployments = {};
+    $scope.limit = 50;
 
     $scope.deploy = function (name, commit) {
       if (name) {
@@ -11,14 +12,21 @@ angular.module('draxApp')
       }
     };
 
+    $scope.getCommits = function () {
+      DataService.getCommits($scope.limit)
+        .then(function (commits) {
+          $scope.commits = commits;
+          $scope.moreCommitsAvailable = Object.keys(commits).length == $scope.limit;
+        });
+    };
+
     $scope.fetch = function fetch() {
       DataService.fetch();
     };
 
-    DataService.getCommits()
-      .then(function (commits) {
-        $scope.commits = commits;
-      });
+    $scope.moreCommits = function moreCommits() {
+      $scope.limit += 50;
+    };
 
     DataService.deployments()
       .then(function (deployments) {
@@ -30,7 +38,7 @@ angular.module('draxApp')
       commit.status = message.status;
 
       // XXX: hacks
-      DataService.getCommits();
+      $scope.getCommits();
     });
 
     SocketService.on('deploy', function (message) {
@@ -42,5 +50,11 @@ angular.module('draxApp')
 
     SocketService.on('update', function (message) {
       $scope.commits = DataService.processCommits(message.commits);
+    });
+
+    $scope.$watch('limit', function (value) {
+      if(value) {
+        $scope.getCommits(value);
+      }
     });
   });
