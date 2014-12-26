@@ -130,7 +130,7 @@ var util = {
             commit.status = status.status;
             return commit;
           });
-      });
+      }, {concurrency: 70});
   },
   deployments: function deployments(deploymentConfig) {
     return Promise.map(deploymentConfig, util.deploymentStatus);
