@@ -70,7 +70,7 @@ var router = function (config, io) {
       });
 
   router.route('/commits')
-    .get(bodyParser(), function(req, res) {
+    .get(bodyParser.json(), function(req, res) {
       var limit = req.param('limit');
       util.commits(repoPath, outDir, limit)
         .then(function(commits) {
