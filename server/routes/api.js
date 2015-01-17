@@ -1,6 +1,6 @@
 'use strict';
 
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
 var express = require('express');
 var Promise = require('bluebird');
 var _s  = require('underscore.string');
