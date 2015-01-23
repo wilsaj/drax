@@ -43,10 +43,12 @@ var util = {
         console.log("git branches error: " + error.message);
       });
   },
-  build: function build(commit, repoPath, buildCommand, distDir, outDir) {
+  build: function build(commit, repoPath, buildCommand, distDir, outDir, logDir) {
     var outPath = path.join(outDir, commit);
     var buildPath = outPath + '-build';
     var distPath = path.join(buildPath, distDir);
+
+    var logPath = path.join(logDir, commit + '.log');
 
     return git('clone ' + repoPath + ' ' + buildPath, repoPath)
       .then(function () {
@@ -54,7 +56,7 @@ var util = {
       })
       .then(function() {
         return execAsync(
-          'mkdir -p ' + outDir + ' && ' + buildCommand + ' && rm -rf ' + outPath + ' && mv ' + distPath + ' ' + outPath + ' && rm -rf ' + buildPath,
+          '((mkdir -p ' + outDir + ' && ' + buildCommand + ' && rm -rf ' + outPath + ' && mv ' + distPath + ' ' + outPath + ' && rm -rf ' + buildPath + ') 2>&1) > ' + logPath,
           {cwd: buildPath}
         ).catch(function (error) {
           console.log("error occurred during build: " + error.message);

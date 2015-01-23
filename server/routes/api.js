@@ -13,9 +13,10 @@ var util = require('../util');
 var router = function (config, io) {
   var buildCommand = config.get('buildCommand');
   var distDir = config.get('distDir');
+  var githubRepo = config.get('githubRepo');
+  var logDir = config.get('logDir');
   var outDir = config.get('outDir');
   var repoPath = config.get('repoPath');
-  var githubRepo = config.get('githubRepo');
 
   var router = express.Router();
 
@@ -31,7 +32,7 @@ var router = function (config, io) {
             status: 'building'
           });
 
-          util.build(commit, repoPath, buildCommand, distDir, outDir)
+          util.build(commit, repoPath, buildCommand, distDir, outDir, logDir)
             .then(function () {
               io.emit('build', {
                 commit: commit,

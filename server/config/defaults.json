@@ -1,9 +1,10 @@
 {
   "debug": false,
   "port": 6515,
-  "distDir": "./.dist",
-  "outDir": "/tmp/drax-build/",
   "buildCommand": "npm run dist",
+  "distDir": "./.dist",
+  "logDir": "/tmp/drax-log/",
+  "outDir": "/tmp/drax-build/",
   "repoPath": "/path/to/repo",
   "deployments": []
 }
