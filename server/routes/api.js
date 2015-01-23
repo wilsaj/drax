@@ -15,7 +15,7 @@ var router = function (config, io) {
   var distDir = config.get('distDir');
   var outDir = config.get('outDir');
   var repoPath = config.get('repoPath');
-  var repoUrl = config.get('repoUrl');
+  var githubRepo = config.get('githubRepo');
 
   var router = express.Router();
 
@@ -60,6 +60,7 @@ var router = function (config, io) {
 
   router.route('/clone')
     .get(function(req, res) {
+      var repoUrl = "https://github.com/" + githubRepo + '.git';
       util.clone(repoUrl, repoPath)
         .then(function() {
           res.status(200).send('success');
