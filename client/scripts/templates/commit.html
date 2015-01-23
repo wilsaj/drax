@@ -18,7 +18,16 @@
       <i class="fa fa-rocket"></i>
     </button>
   </div>
-  <div class="commit-hash">{{commit.hash}}</div>
+  <div class="commit-hash">
+    <span ng-if="commit.url">
+      <a href="{{commit.url}}">
+        {{commit.hash}}
+      </a>
+    </span>
+    <span ng-if="!commit.url">
+      {{commit.hash}}
+    </span>
+  </div>
   <div class="commit-byline">by {{commit.authorName}} @ {{commit.date.toDate()|date:'yyyy-MM-dd HH:mm:ss'}}</div>
   <p>status: <span class="label" ng-class="{'not built': 'label-default', 'built': 'label-success', 'building': 'label-warning'}[commit.status]">{{ commit.status }}</span></p>
   <p ng-if="deployedTo">deployed to: <span class="label label-info deploy-label" ng-repeat="deployment in deployedTo">{{deployment.name}}</span></p>

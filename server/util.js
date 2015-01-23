@@ -80,7 +80,7 @@ var util = {
   clone: function clone(url, repoPath) {
     return git('clone ' + url + ' ' + repoPath);
   },
-  commits: function commits(repoPath, outDir, limit) {
+  commits: function commits(repoPath, outDir, limit, githubRepo) {
     // separator that won't naturally occur in any part of commit log
     var propertySep = '::-PROPERTYSEP-::';
     var commitSep = '::-COMMITSEP-::';
@@ -118,7 +118,9 @@ var util = {
               return branch.length > 0;
             });
 
-
+          if (githubRepo) {
+            commit.url = "https://github.com/" + githubRepo + "/commit/" + commit.hash;
+          }
           return commit;
         });
 
