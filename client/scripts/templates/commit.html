@@ -11,7 +11,7 @@
         <i class="fa fa-refresh fa-spin"></i>
       </span>
     </button>
-    <a class="btn btn-default" ng-disabled="commit.status !== 'built'" href="/api/v1/preview/{{commit.hash}}">
+    <a class="btn btn-default" ng-disabled="commit.status !== 'built'" href="/api/v1/preview/{{commit.hash}}" target="_blank">
       <i class="fa fa-eye"></i>
     </a>
     <button dropdown-menu="deployments" dropdown-item-label="name" dropdown-onchange="deploy(selected.name, commit.hash)" class="btn btn-default" ng-disabled="commit.status !== 'built'" ng-click="deploy()">
