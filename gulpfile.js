@@ -81,16 +81,16 @@ gulp.task('dist-packaging', function () {
 gulp.task('dist-useref', ['dist-useref-assets', 'dist-useref-templates']);
 
 gulp.task('dist-angular-template-cache', function () {
-    gulp.src(paths.angularTemplates)
-        .pipe(templateCache({module: 'draxApp'}))
-        .pipe(gulp.dest(dirs.dist + '/' + dirs.client + '/scripts'));
+  return gulp.src(paths.angularTemplates)
+      .pipe(templateCache({module: 'draxApp'}))
+      .pipe(gulp.dest(dirs.dist + '/' + dirs.client + '/scripts'));
 });
 
 
 gulp.task('dist-useref-tmp', ['dist-angular-template-cache', 'dist-other'],function() {
   var assets = useref.assets({
     searchPath: dirs.dist + '/' + dirs.client
-  });
+  }).on('error', console.log);
 
   return gulp.src(paths.templates)
       .pipe(assets)
