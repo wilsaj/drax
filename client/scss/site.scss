@@ -49,6 +49,10 @@
         .dropdown {
             width: 200px;
         }
+        
+        a.dropdown-item {
+            cursor: pointer;
+        }
     }
 
 }
