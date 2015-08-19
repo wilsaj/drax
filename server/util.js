@@ -46,6 +46,7 @@ var util = {
   build: function build(commit, repoPath, buildCommand, distDir, outDir) {
     var outPath = path.join(outDir, commit);
     var buildPath = outPath + '-build';
+    var errorPath = buildPath + '-error.log';
     var distPath = path.join(buildPath, distDir);
 
     return git('clone ' + repoPath + ' ' + buildPath, repoPath)
@@ -53,12 +54,16 @@ var util = {
         return git('checkout ' + commit, buildPath);
       })
       .then(function() {
-        return execAsync(
-          'mkdir -p ' + outDir + ' && ' + buildCommand + ' && rm -rf ' + outPath + ' && mv ' + distPath + ' ' + outPath + ' && rm -rf ' + buildPath,
+        return execAsync([
+              'mkdir -p ' + outDir,
+              buildCommand + ' >& ' + errorPath,
+              'rm -rf ' + outPath,
+              'mv ' + distPath + ' ' + outPath,
+              'rm -rf ' + buildPath,
+              'rm -rf ' + errorPath
+            ].join(' && '),
           {cwd: buildPath}
-        ).catch(function (error) {
-          console.log("error occurred during build: " + error.message);
-        });
+        );
       });
   },
   clearPartials: function clearPartials(outDir) {
@@ -217,12 +222,21 @@ var util = {
       .then(function (validCommit) {
         var builtDir = path.join(outDir, commit);
         var buildingDir = builtDir + '-build';
+        var errorLog = buildingDir + '-error.log';
 
         return statAsync(buildingDir)
           .then(function (stats) {
-            return {
-              status: 'building'
-            };
+            return statAsync(errorLog)
+              .then(function (stats) {
+                return {
+                  status: 'error'
+                };
+              })
+              .catch(function(error) {
+                return {
+                  status: 'building'
+                };
+              });
           })
           .catch(function (error) {
             return statAsync(builtDir)

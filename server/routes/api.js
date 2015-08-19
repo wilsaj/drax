@@ -32,10 +32,16 @@ var router = function (config, io) {
           });
 
           util.build(commit, repoPath, buildCommand, distDir, outDir)
-            .then(function () {
+            .then(function success() {
               io.emit('build', {
                 commit: commit,
                 status: 'built'
+              });
+            }, function error(error) {
+              console.log("error occurred during build: " + error.message);
+              io.emit('build', {
+                commit: commit,
+                status: 'error'
               });
             });
 
