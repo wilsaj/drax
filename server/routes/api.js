@@ -150,6 +150,19 @@ var router = function (config, io) {
         });
     });
 
+  router.route('/log/build/:commit')
+    .get(function(req, res) {
+      var commit = req.params.commit;
+      var paths = util.buildPaths(commit, outDir);
+      res.sendfile(paths.buildLog);
+    });
+
+  router.route('/log/errors/:commit')
+    .get(function(req, res) {
+      var commit = req.params.commit;
+      var paths = util.buildPaths(commit, outDir);
+      res.sendfile(paths.buildErrors);
+    });
 
   router.use('/preview', express.static(outDir));
 
