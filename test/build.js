@@ -422,13 +422,13 @@ test('start up build tests', function (t) {
                       .get(apiPre + '/status/' + commit)
                       .end(function(err, res) {
                         t2.equal(res.status, 200);
-                        t2.equal(res.text, JSON.stringify({status: 'not built'}));
+                        t2.equal(res.text, JSON.stringify({status: 'error'}));
                         testServer.stop();
                       });
                   });
                 }, 50);
               });
-            }, 50);
+            }, 1050);
           });
       });
     });

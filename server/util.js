@@ -63,7 +63,7 @@ var util = {
             '((' + buildCommand + ') >& ' + paths.buildLog + ' || echo "error" > ' + paths.status + ')',
             '(mv ' + paths.dist + '/.build_errors ' + paths.buildErrors + ' && echo "error" > ' + paths.status + ' || true)',
             '(cp -R ' + paths.dist + '/ ' + paths.out + ' 2>> ' + paths.buildLog + ' || echo "error" > ' + paths.status + ')',
-            '(grep "building" ' + paths.status + ' && echo "built" > ' + paths.status + ' | true)',
+            '(grep "building" ' + paths.status + ' && echo "built" > ' + paths.status + ' || true)',
             'rm -rf ' + paths.build,
           ].join(' && ');
         return execAsync(command, {cwd: paths.build});
@@ -87,12 +87,15 @@ var util = {
   clearPartials: function clearPartials(outDir) {
     return readdirAsync(outDir)
       .then(function (dirs) {
-        var buildDirs = dirs.filter(function (dir) {
-          return _s.endsWith(dir, '-build');
+        var statusPaths = dirs.filter(function (dir) {
+          return !_s.endsWith(dir, '-build');
+        })
+        .map(function (dir) {
+          return path.join(dir, '.drax-info/status')
         });
 
-        return Promise.map(buildDirs, function(buildDir) {
-          return rimrafAsync(outDir + '/' + buildDir);
+        return Promise.map(statusPaths, function(statusPath) {
+          return execAsync('(grep "building" ' + statusPath + ' && rm ' + statusPath + ') || true')
         });
       }).catch(Promise.OperationalError, function (error) {
         if (!_s.startsWith(error.message, 'ENOENT')) {
