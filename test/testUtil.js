@@ -40,7 +40,7 @@ var baseCommits = [
     body: '',
     status: 'not built'
   }, {
-    branches: [ 'HEAD', 'master' ],
+    branches: [ 'HEAD -> master' ],
     authorName: 'Testerina Testski',
     authorEmail: 'testpower3726@aol.com',
     subject: 'changed',
