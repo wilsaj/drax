@@ -10,6 +10,9 @@
       <span ng-if="commit.status === 'building'">
         <i class="fa fa-refresh fa-spin"></i>
       </span>
+      <span ng-if="commit.status === 'error'">
+        <i class="fa fa-exclamation-triangle"></i>
+      </span>
     </button>
     <a class="btn btn-default" ng-disabled="commit.status !== 'built'" href="/api/v1/preview/{{commit.hash}}" target="_blank">
       <i class="fa fa-eye"></i>
@@ -29,8 +32,27 @@
     </span>
   </div>
   <div class="commit-byline">by {{commit.authorName}} @ {{commit.date.toDate()|date:'yyyy-MM-dd HH:mm:ss'}}</div>
-  <p>status: <span class="label" ng-class="{'not built': 'label-default', 'built': 'label-success', 'building': 'label-warning'}[commit.status]">{{ commit.status }}</span></p>
-  <p ng-if="deployedTo">deployed to: <span class="label label-info deploy-label" ng-repeat="deployment in deployedTo">{{deployment.name}}</span></p>
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="pull-left status-group">
+        status:
+        <span class="label" ng-class="{'not built': 'label-default', 'built': 'label-success', 'building': 'label-warning', 'error': 'label-danger'}[commit.status]">{{ commit.status }}</span>
+      </div>
+      <div ng-if="commit.status !== 'not built'" class="status-group">
+        logs:
+        <a href="/api/v1/log/build/{{commit.hash}}"><span class="label label-warning">build</span></a>
+        <a ng-if="commit.status==='error'" href="/api/v1/log/errors/{{commit.hash}}"><span class="label label-danger">errors</span></a>
+      </div>
+    </div>
+  </div>
+  <div ng-if="deployedTo" class="row">
+    <div class="col-xs-12">
+      <div class="pull-left status-group">
+        deployed to:
+        <span class="label label-info deploy-label" ng-repeat="deployment in deployedTo">{{deployment.name}}</span></p>
+      </div>
+    </div>
+  </div>
   <pre>{{ commit.subject }}
 {{ commit.body }}</pre>
 </div>

@@ -44,32 +44,58 @@ var util = {
       });
   },
   build: function build(commit, repoPath, buildCommand, distDir, outDir) {
-    var outPath = path.join(outDir, commit);
-    var buildPath = outPath + '-build';
-    var distPath = path.join(buildPath, distDir);
+    var paths = this.buildPaths(commit, outDir, distDir);
 
-    return git('clone ' + repoPath + ' ' + buildPath, repoPath)
+    return execAsync([
+          'rm -rf ' + paths.build,
+          'rm -rf ' + paths.info,
+          'mkdir -p ' + paths.info,
+          'echo "building" > ' + paths.status,
+        ].join(' && '))
       .then(function () {
-        return git('checkout ' + commit, buildPath);
+        return git('clone ' + repoPath + ' ' + paths.build, repoPath)
+      })
+      .then(function () {
+        return git('checkout ' + commit, paths.build);
       })
       .then(function() {
-        return execAsync(
-          'mkdir -p ' + outDir + ' && ' + buildCommand + ' && rm -rf ' + outPath + ' && mv ' + distPath + ' ' + outPath + ' && rm -rf ' + buildPath,
-          {cwd: buildPath}
-        ).catch(function (error) {
-          console.log("error occurred during build: " + error.message);
-        });
+        var command = [
+            '((' + buildCommand + ') >& ' + paths.buildLog + ' || echo "error" > ' + paths.status + ')',
+            '(mv ' + paths.dist + '/.build_errors ' + paths.buildErrors + ' && echo "error" > ' + paths.status + ' || true)',
+            '(cp -R ' + paths.dist + '/ ' + paths.out + ' 2>> ' + paths.buildLog + ' || echo "error" > ' + paths.status + ')',
+            '(grep "building" ' + paths.status + ' && echo "built" > ' + paths.status + ' || true)',
+            'rm -rf ' + paths.build,
+          ].join(' && ');
+        return execAsync(command, {cwd: paths.build});
       });
+  },
+  buildPaths: function buildPaths(commit, outDir, distDir) {
+    var paths = {};
+
+    paths.out = path.join(outDir, commit);
+    paths.build = paths.out + '-build';
+    paths.info = path.join(paths.out, '.drax-info');
+    paths.status = path.join(paths.info, 'status');
+    paths.buildLog = path.join(paths.info, 'build-log.log');
+    paths.buildErrors = path.join(paths.info, 'build-errors.log');
+    if (distDir) {
+      paths.dist = path.join(paths.build, distDir);
+    }
+
+    return paths;
   },
   clearPartials: function clearPartials(outDir) {
     return readdirAsync(outDir)
       .then(function (dirs) {
-        var buildDirs = dirs.filter(function (dir) {
-          return _s.endsWith(dir, '-build');
+        var statusPaths = dirs.filter(function (dir) {
+          return !_s.endsWith(dir, '-build');
+        })
+        .map(function (dir) {
+          return path.join(dir, '.drax-info/status')
         });
 
-        return Promise.map(buildDirs, function(buildDir) {
-          return rimrafAsync(outDir + '/' + buildDir);
+        return Promise.map(statusPaths, function(statusPath) {
+          return execAsync('(grep "building" ' + statusPath + ' && rm ' + statusPath + ') || true')
         });
       }).catch(Promise.OperationalError, function (error) {
         if (!_s.startsWith(error.message, 'ENOENT')) {
@@ -213,24 +239,23 @@ var util = {
       });
   },
   status: function status(commit, repoPath, outDir) {
+    var paths = this.buildPaths(commit, outDir);
+
     return util.hashFor(commit, repoPath)
       .then(function (validCommit) {
-        var builtDir = path.join(outDir, commit);
-        var buildingDir = builtDir + '-build';
-
-        return statAsync(buildingDir)
+        return statAsync(paths.status)
           .then(function (stats) {
-            return {
-              status: 'building'
-            };
-          })
-          .catch(function (error) {
-            return statAsync(builtDir)
-              .then(function (stats) {
+            return readFileAsync(paths.status)
+              .then(function (data) {
                 return {
-                  status: 'built'
+                  status: data.toString().trim()
                 };
-              });
+              })
+          })
+          .catch(function(error) {
+            return {
+              status: 'not built'
+            };
           });
       })
       .catch(function (error) {
@@ -242,6 +267,7 @@ var util = {
         throw error;
       });
   }
+
 };
 
 module.exports = util;

@@ -32,10 +32,16 @@ var router = function (config, io) {
           });
 
           util.build(commit, repoPath, buildCommand, distDir, outDir)
-            .then(function () {
+            .then(function success() {
               io.emit('build', {
                 commit: commit,
                 status: 'built'
+              });
+            }, function error(error) {
+              console.log("error occurred during build: " + error.message);
+              io.emit('build', {
+                commit: commit,
+                status: 'error'
               });
             });
 
@@ -144,6 +150,19 @@ var router = function (config, io) {
         });
     });
 
+  router.route('/log/build/:commit')
+    .get(function(req, res) {
+      var commit = req.params.commit;
+      var paths = util.buildPaths(commit, outDir);
+      res.sendfile(paths.buildLog);
+    });
+
+  router.route('/log/errors/:commit')
+    .get(function(req, res) {
+      var commit = req.params.commit;
+      var paths = util.buildPaths(commit, outDir);
+      res.sendfile(paths.buildErrors);
+    });
 
   router.use('/preview', express.static(outDir));
 
