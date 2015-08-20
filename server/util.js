@@ -61,7 +61,7 @@ var util = {
       .then(function() {
         var command = [
             '((' + buildCommand + ') >& ' + paths.buildLog + ' || echo "error" > ' + paths.status + ')',
-            '(mv ' + paths.buildErrors + ' ' + paths.info + ' && echo "error" > ' + paths.status + ' || true)',
+            '(mv ' + paths.dist + '/.build_errors ' + paths.buildErrors + ' && echo "error" > ' + paths.status + ' || true)',
             '(cp -R ' + paths.dist + '/ ' + paths.out + ' 2>> ' + paths.buildLog + ' || echo "error" > ' + paths.status + ')',
             '(grep "building" ' + paths.status + ' && echo "built" > ' + paths.status + ' | true)',
             'rm -rf ' + paths.build,
@@ -77,7 +77,7 @@ var util = {
     paths.info = path.join(paths.out, '.drax-info');
     paths.status = path.join(paths.info, 'status');
     paths.buildLog = path.join(paths.info, 'build-log.log');
-    paths.buildErrors = path.join(paths.info, '.build-errors.log');
+    paths.buildErrors = path.join(paths.info, 'build-errors.log');
     if (distDir) {
       paths.dist = path.join(paths.build, distDir);
     }
