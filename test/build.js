@@ -41,11 +41,13 @@ test('build tests', function (t) {
 
           var testPath = path.join(outDir, commit, 'hi.txt');
 
-          draxTest.watchFor(outDir, commit, function() {
-            fs.readFile(testPath, function(err, data) {
-              t2.equal(data.toString(), 'hello\n');
+          setTimeout(function () {
+            draxTest.watchFor(outDir, commit, function() {
+              fs.readFile(testPath, function(err, data) {
+                t2.equal(data.toString(), 'hello\n');
+              });
             });
-          });
+          }, 500);
         });
     });
   });
@@ -63,13 +65,15 @@ test('build tests', function (t) {
           t2.equal(res.status, 200);
           t2.equal(res.text, JSON.stringify({status: 'building'}));
 
-          draxTest.watchFor(outDir, commit, function() {
-            var testPath = path.join(outDir, commit, 'hi.txt');
+          setTimeout(function () {
+            draxTest.watchFor(outDir, commit, function() {
+              var testPath = path.join(outDir, commit, 'hi.txt');
 
-            fs.readFile(testPath, function(err, data) {
-              t2.equal(data.toString(), 'hi\n');
+              fs.readFile(testPath, function(err, data) {
+                t2.equal(data.toString(), 'hi\n');
+              });
             });
-          });
+          }, 500);
         });
     });
   });
@@ -88,13 +92,15 @@ test('build tests', function (t) {
           t2.equal(res.status, 200);
           t2.equal(res.text, JSON.stringify({status: 'building'}));
 
-          draxTest.watchFor(outDir, commit, function() {
-            var testPath = path.join(outDir, commit, 'hi.txt');
+          setTimeout(function () {
+            draxTest.watchFor(outDir, commit, function() {
+              var testPath = path.join(outDir, commit, 'hi.txt');
 
-            fs.readFile(testPath, function(err, data) {
-              t2.equal(data.toString(), 'hello\nexciting and different things\n');
+              fs.readFile(testPath, function(err, data) {
+                t2.equal(data.toString(), 'hello\nexciting and different things\n');
+              });
             });
-          });
+          }, 500);
         });
     });
   });
@@ -116,13 +122,14 @@ test('build tests', function (t) {
   });
 
 
-  t.test('deploy should work deploy for built commits', function (t2) {
+  t.test('deploy should work for built commits', function (t2) {
     t2.plan(3);
     exec('git log -1 --format=format:%H master', {cwd: repoPath}, function (err, stdout, stderr) {
       var commit = stdout;
       var deployName = 'test';
 
       var testPath = path.join(deployDir, deployName, 'hi.txt');
+
       draxTest.watchFor(deployDir, 'test', function() {
         fs.readFile(testPath, function(err, data) {
           t2.equal(data.toString(), 'hello\n');

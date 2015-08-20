@@ -136,7 +136,7 @@ function makeConfig(dir, overrides) {
     'repoPath': path.join(dir, 'repo'),
     'deployDir': deployDir,
     'outDir': path.join(dir, 'out'),
-    'buildCommand': 'mkdir -p .dist && cp -r ./* .dist',
+    'buildCommand': 'sleep 1 && mkdir -p .dist && cp -r ./* .dist',
     'NODE_ENV': 'test',
     'port': 7357,
     'deployments': [
