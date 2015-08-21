@@ -50,6 +50,7 @@ var util = {
           'rm -rf ' + paths.build,
           'rm -rf ' + paths.info,
           'mkdir -p ' + paths.info,
+          'touch ' + paths.status,
           'echo "building" > ' + paths.status,
         ].join(' && '))
       .then(function () {
@@ -60,9 +61,10 @@ var util = {
       })
       .then(function() {
         var command = [
-            '((' + buildCommand + ') >& ' + paths.buildLog + ' || echo "error" > ' + paths.status + ')',
+            'touch ' + paths.buildLog,
+            '((' + buildCommand + ') > ' + paths.buildLog + ' 2>&1 || echo "error" > ' + paths.status + ')',
             '(mv ' + paths.dist + '/.build_errors ' + paths.buildErrors + ' && echo "error" > ' + paths.status + ' || true)',
-            '(cp -R ' + paths.dist + '/ ' + paths.out + ' 2>> ' + paths.buildLog + ' || echo "error" > ' + paths.status + ')',
+            '(cp -R ' + paths.dist + '/* ' + paths.out + ' 2>> ' + paths.buildLog + ' || echo "error" > ' + paths.status + ')',
             '(grep "building" ' + paths.status + ' && echo "built" > ' + paths.status + ' || true)',
             'rm -rf ' + paths.build,
           ].join(' && ');
